@@ -75,9 +75,6 @@ nunit-*.xml
 # Visual Studio
 .vs/
 
-# Entity Framework Migrations
-**/Migrations/*.Designer.cs
-
 # JetBrains Rider
 .idea/
 *.sln.iml
