@@ -1,0 +1,65 @@
+@model GamesSharp.Models.Game
+
+@{
+    ViewData["Title"] = "Game Details";
+}
+
+<h1>Game Details</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Name)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Name)</dd>
+        
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Description)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Description)</dd>
+        
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Genre)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Genre)</dd>
+        
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.MinPlayers)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.MinPlayers)</dd>
+        
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.MaxPlayers)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.MaxPlayers)</dd>
+        
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.AverageDuration)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.AverageDuration) minutes</dd>
+    </dl>
+</div>
+
+<div>
+    <h3>Game Sessions</h3>
+    @if (Model.GameSessions.Any())
+    {
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Scheduled Date</th>
+                    <th>Status</th>
+                    <th>Location</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var session in Model.GameSessions)
+                {
+                    <tr>
+                        <td>@session.ScheduledDate.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@session.Status</td>
+                        <td>@session.Location</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No game sessions scheduled yet.</p>
+    }
+</div>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>

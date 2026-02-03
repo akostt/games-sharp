@@ -1,0 +1,49 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Board Game Sessions Manager</h1>
+    <p class="lead">Organize and manage your board game sessions with ease</p>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Games</h5>
+                <p class="card-text">Browse and manage your collection of board games.</p>
+                <a asp-controller="Games" asp-action="Index" class="btn btn-primary">View Games</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Players</h5>
+                <p class="card-text">Manage player profiles and track their gaming history.</p>
+                <a asp-controller="Players" asp-action="Index" class="btn btn-primary">View Players</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Game Sessions</h5>
+                <p class="card-text">Schedule and organize your board game sessions.</p>
+                <a asp-controller="GameSessions" asp-action="Index" class="btn btn-primary">View Sessions</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-5">
+    <h2>Features</h2>
+    <ul>
+        <li>Manage your board game collection with detailed information</li>
+        <li>Register and track players</li>
+        <li>Schedule game sessions with multiple players</li>
+        <li>Track session status and results</li>
+        <li>View player gaming history</li>
+    </ul>
+</div>
