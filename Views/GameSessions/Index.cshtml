@@ -1,0 +1,56 @@
+@model IEnumerable<GamesSharp.Models.GameSession>
+
+@{
+    ViewData["Title"] = "Game Sessions";
+}
+
+<h1>Game Sessions</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Schedule New Session</a>
+</p>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Game</th>
+            <th>Scheduled Date</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th>Players</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>@Html.DisplayFor(modelItem => item.Game.Name)</td>
+            <td>@item.ScheduledDate.ToString("yyyy-MM-dd HH:mm")</td>
+            <td>@Html.DisplayFor(modelItem => item.Location)</td>
+            <td>
+                @if (item.Status == "Completed")
+                {
+                    <span class="badge bg-success">@item.Status</span>
+                }
+                else if (item.Status == "InProgress")
+                {
+                    <span class="badge bg-primary">In Progress</span>
+                }
+                else if (item.Status == "Cancelled")
+                {
+                    <span class="badge bg-danger">@item.Status</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">@item.Status</span>
+                }
+            </td>
+            <td>@item.SessionPlayers.Count</td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -1,0 +1,63 @@
+@model GamesSharp.Models.Player
+
+@{
+    ViewData["Title"] = "Player Details";
+}
+
+<h1>Player Details</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Name)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Name)</dd>
+        
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Email)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Email)</dd>
+        
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Phone)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Phone)</dd>
+        
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.RegisteredDate)</dt>
+        <dd class="col-sm-9">@Model.RegisteredDate.ToString("yyyy-MM-dd")</dd>
+    </dl>
+</div>
+
+<div>
+    <h3>Game Sessions</h3>
+    @if (Model.SessionPlayers.Any())
+    {
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Game</th>
+                    <th>Scheduled Date</th>
+                    <th>Status</th>
+                    <th>Score</th>
+                    <th>Winner</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var sp in Model.SessionPlayers)
+                {
+                    <tr>
+                        <td>@sp.GameSession.Game.Name</td>
+                        <td>@sp.GameSession.ScheduledDate.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@sp.GameSession.Status</td>
+                        <td>@(sp.Score.HasValue ? sp.Score.Value.ToString() : "-")</td>
+                        <td>@(sp.IsWinner ? "Yes" : "-")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No game sessions yet.</p>
+    }
+</div>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>

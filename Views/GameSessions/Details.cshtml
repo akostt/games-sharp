@@ -1,0 +1,85 @@
+@model GamesSharp.Models.GameSession
+
+@{
+    ViewData["Title"] = "Game Session Details";
+}
+
+<h1>Game Session Details</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">Game</dt>
+        <dd class="col-sm-9">@Model.Game.Name</dd>
+        
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.ScheduledDate)</dt>
+        <dd class="col-sm-9">@Model.ScheduledDate.ToString("yyyy-MM-dd HH:mm")</dd>
+        
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.ActualStartTime)</dt>
+        <dd class="col-sm-9">@(Model.ActualStartTime.HasValue ? Model.ActualStartTime.Value.ToString("yyyy-MM-dd HH:mm") : "-")</dd>
+        
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.ActualEndTime)</dt>
+        <dd class="col-sm-9">@(Model.ActualEndTime.HasValue ? Model.ActualEndTime.Value.ToString("yyyy-MM-dd HH:mm") : "-")</dd>
+        
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Location)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Location)</dd>
+        
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Status)</dt>
+        <dd class="col-sm-9">
+            @if (Model.Status == "Completed")
+            {
+                <span class="badge bg-success">@Model.Status</span>
+            }
+            else if (Model.Status == "InProgress")
+            {
+                <span class="badge bg-primary">In Progress</span>
+            }
+            else if (Model.Status == "Cancelled")
+            {
+                <span class="badge bg-danger">@Model.Status</span>
+            }
+            else
+            {
+                <span class="badge bg-secondary">@Model.Status</span>
+            }
+        </dd>
+        
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Notes)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Notes)</dd>
+    </dl>
+</div>
+
+<div>
+    <h3>Players</h3>
+    @if (Model.SessionPlayers.Any())
+    {
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Player Name</th>
+                    <th>Score</th>
+                    <th>Winner</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var sp in Model.SessionPlayers)
+                {
+                    <tr>
+                        <td>@sp.Player.Name</td>
+                        <td>@(sp.Score.HasValue ? sp.Score.Value.ToString() : "-")</td>
+                        <td>@(sp.IsWinner ? "✓" : "")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No players assigned to this session.</p>
+    }
+</div>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>
