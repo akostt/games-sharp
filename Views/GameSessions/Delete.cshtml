@@ -14,7 +14,7 @@
         <dd class="col-sm-9">@(Model.Game?.Name ?? "-")</dd>
         
         <dt class="col-sm-3">@Html.DisplayNameFor(model => model.ScheduledDate)</dt>
-        <dd class="col-sm-9">@Model.ScheduledDate.ToString("dd.MM.yyyy HH:mm")</dd>
+        <dd class="col-sm-9">@Model.ScheduledDate.ToString("dd.MM.yyyy")</dd>
         
         <dt class="col-sm-3">Место проведения</dt>
         <dd class="col-sm-9">@(Model.Venue?.Name ?? "-")</dd>

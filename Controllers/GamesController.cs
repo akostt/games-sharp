@@ -44,6 +44,8 @@ namespace GamesSharp.Controllers
                 var game = await Context.Games
                     .Include(g => g.Category)
                     .Include(g => g.Publisher)
+                    .Include(g => g.GameEquipments)
+                        .ThenInclude(ge => ge.Equipment)
                     .Include(g => g.GameSessions)
                         .ThenInclude(gs => gs.Venue)
                     .Include(g => g.GameSessions)
@@ -63,16 +65,17 @@ namespace GamesSharp.Controllers
         }
 
         // GET: Games/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             PopulateDropdowns();
+            await PopulateEquipmentList();
             return View();
         }
 
         // POST: Games/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Description,MinPlayers,MaxPlayers,AverageDuration,Complexity,MinAge,YearPublished,CategoryId,PublisherId")] Game game)
+        public async Task<IActionResult> Create([Bind("Id,Name,Description,MinPlayers,MaxPlayers,AverageDuration,Complexity,MinAge,YearPublished,CategoryId,PublisherId")] Game game, List<int>? selectedEquipment, Dictionary<int, int>? equipmentQuantities)
         {
             if (ModelState.IsValid)
             {
@@ -80,6 +83,26 @@ namespace GamesSharp.Controllers
                 {
                     Context.Add(game);
                     await Context.SaveChangesAsync();
+                    
+                    // Add selected equipment
+                    if (selectedEquipment != null && selectedEquipment.Any())
+                    {
+                        foreach (var equipmentId in selectedEquipment)
+                        {
+                            var quantity = equipmentQuantities != null && equipmentQuantities.ContainsKey(equipmentId) 
+                                ? equipmentQuantities[equipmentId] 
+                                : 1;
+                            
+                            var gameEquipment = new GameEquipment
+                            {
+                                GameId = game.Id,
+                                EquipmentId = equipmentId,
+                                RequiredQuantity = quantity
+                            };
+                            Context.GameEquipments.Add(gameEquipment);
+                        }
+                        await Context.SaveChangesAsync();
+                    }
                     
                     Logger.LogInformation("Создана новая игра: {GameName} (ID: {GameId})", game.Name, game.Id);
                     SetSuccessMessage(Constants.SuccessMessages.RecordCreated);
@@ -93,6 +116,7 @@ namespace GamesSharp.Controllers
             }
             
             PopulateDropdowns(game.CategoryId, game.PublisherId);
+            await PopulateEquipmentList();
             return View(game);
         }
 
@@ -109,6 +133,7 @@ namespace GamesSharp.Controllers
                     return NotFoundWithLogging("Игра", id);
 
                 PopulateDropdowns(game.CategoryId, game.PublisherId);
+                await PopulateEquipmentList(game.Id);
                 return View(game);
             }
             catch (Exception ex)
@@ -120,7 +145,7 @@ namespace GamesSharp.Controllers
         // POST: Games/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,MinPlayers,MaxPlayers,AverageDuration,Complexity,MinAge,YearPublished,CategoryId,PublisherId")] Game game)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,MinPlayers,MaxPlayers,AverageDuration,Complexity,MinAge,YearPublished,CategoryId,PublisherId")] Game game, List<int>? selectedEquipment, Dictionary<int, int>? equipmentQuantities)
         {
             if (id != game.Id)
                 return NotFoundWithLogging("Игра", id);
@@ -130,6 +155,31 @@ namespace GamesSharp.Controllers
                 try
                 {
                     Context.Update(game);
+                    await Context.SaveChangesAsync();
+                    
+                    // Remove existing equipment associations
+                    var existingEquipment = Context.GameEquipments.Where(ge => ge.GameId == game.Id);
+                    Context.GameEquipments.RemoveRange(existingEquipment);
+                    
+                    // Add new equipment associations
+                    if (selectedEquipment != null && selectedEquipment.Any())
+                    {
+                        foreach (var equipmentId in selectedEquipment)
+                        {
+                            var quantity = equipmentQuantities != null && equipmentQuantities.ContainsKey(equipmentId) 
+                                ? equipmentQuantities[equipmentId] 
+                                : 1;
+                            
+                            var gameEquipment = new GameEquipment
+                            {
+                                GameId = game.Id,
+                                EquipmentId = equipmentId,
+                                RequiredQuantity = quantity
+                            };
+                            Context.GameEquipments.Add(gameEquipment);
+                        }
+                    }
+                    
                     await Context.SaveChangesAsync();
                     
                     Logger.LogInformation("Обновлена игра: {GameName} (ID: {GameId})", game.Name, game.Id);
@@ -155,6 +205,7 @@ namespace GamesSharp.Controllers
             }
             
             PopulateDropdowns(game.CategoryId, game.PublisherId);
+            await PopulateEquipmentList(game.Id);
             return View(game);
         }
 
@@ -215,6 +266,26 @@ namespace GamesSharp.Controllers
         {
             ViewBag.CategoryId = new SelectList(Context.GameCategories, "Id", "Name", categoryId);
             ViewBag.PublisherId = new SelectList(Context.Publishers, "Id", "Name", publisherId);
+        }
+
+        private async Task PopulateEquipmentList(int? gameId = null)
+        {
+            var allEquipment = await Context.Equipments.ToListAsync();
+            var selectedEquipment = new List<int>();
+            var equipmentQuantities = new Dictionary<int, int>();
+
+            if (gameId.HasValue)
+            {
+                var gameEquipments = await Context.GameEquipments
+                    .Where(ge => ge.GameId == gameId.Value)
+                    .ToListAsync();
+                selectedEquipment = gameEquipments.Select(ge => ge.EquipmentId).ToList();
+                equipmentQuantities = gameEquipments.ToDictionary(ge => ge.EquipmentId, ge => ge.RequiredQuantity);
+            }
+
+            ViewBag.AllEquipment = allEquipment;
+            ViewBag.SelectedEquipment = selectedEquipment;
+            ViewBag.EquipmentQuantities = equipmentQuantities;
         }
     }
 }
