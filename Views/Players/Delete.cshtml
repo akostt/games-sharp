@@ -1,12 +1,12 @@
 @model GamesSharp.Models.Player
 
 @{
-    ViewData["Title"] = "Delete Player";
+    ViewData["Title"] = "Удалить игрока";
 }
 
-<h1>Delete Player</h1>
-
-<h3>Are you sure you want to delete this player?</h3>
+<div class="container mt-4">
+    <h1><i class="bi bi-trash"></i> Удалить игрока</h1>
+    <h3 class="text-danger">Вы уверены, что хотите удалить этого игрока?</h3>
 <div>
     <hr />
     <dl class="row">
@@ -19,7 +19,7 @@
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" />
-        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        <input type="submit" value="Удалить" class="btn btn-danger" />
+        <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-x-circle"></i> Отмена</a>
     </form>
 </div>

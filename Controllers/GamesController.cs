@@ -1,130 +1,185 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using GamesSharp.Data;
 using GamesSharp.Models;
+using GamesSharp.Helpers;
 
 namespace GamesSharp.Controllers
 {
-    public class GamesController : Controller
+    public class GamesController : BaseController
     {
-        private readonly ApplicationDbContext _context;
-
-        public GamesController(ApplicationDbContext context)
+        public GamesController(ApplicationDbContext context, ILogger<GamesController> logger)
+            : base(context, logger)
         {
-            _context = context;
         }
 
         // GET: Games
         public async Task<IActionResult> Index()
         {
-            var games = await _context.Games.ToListAsync();
-            return View(games);
+            try
+            {
+                var games = await Context.Games
+                    .Include(g => g.Category)
+                    .Include(g => g.Publisher)
+                    .ToListAsync();
+                
+                Logger.LogInformation("Загружено {Count} игр", games.Count);
+                return View(games);
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex, "Index");
+            }
         }
 
         // GET: Games/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (!IsValidId(id))
+                return NotFoundWithLogging("Игра", id);
 
-            var game = await _context.Games
-                .Include(g => g.GameSessions)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (game == null)
+            try
             {
-                return NotFound();
-            }
+                var game = await Context.Games
+                    .Include(g => g.Category)
+                    .Include(g => g.Publisher)
+                    .Include(g => g.GameSessions)
+                        .ThenInclude(gs => gs.Venue)
+                    .Include(g => g.GameSessions)
+                        .ThenInclude(gs => gs.SessionPlayers)
+                    .FirstOrDefaultAsync(m => m.Id == id);
+                
+                if (game == null)
+                    return NotFoundWithLogging("Игра", id);
 
-            return View(game);
+                Logger.LogInformation("Просмотр деталей игры: {GameName} (ID: {GameId})", game.Name, game.Id);
+                return View(game);
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex, "Details");
+            }
         }
 
         // GET: Games/Create
         public IActionResult Create()
         {
+            PopulateDropdowns();
             return View();
         }
 
         // POST: Games/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Description,MinPlayers,MaxPlayers,AverageDuration,Genre")] Game game)
+        public async Task<IActionResult> Create([Bind("Id,Name,Description,MinPlayers,MaxPlayers,AverageDuration,Complexity,MinAge,YearPublished,CategoryId,PublisherId")] Game game)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(game);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    Context.Add(game);
+                    await Context.SaveChangesAsync();
+                    
+                    Logger.LogInformation("Создана новая игра: {GameName} (ID: {GameId})", game.Name, game.Id);
+                    SetSuccessMessage(Constants.SuccessMessages.RecordCreated);
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Ошибка при создании игры");
+                    SetErrorMessage(Constants.ErrorMessages.DatabaseError);
+                }
             }
+            
+            PopulateDropdowns(game.CategoryId, game.PublisherId);
             return View(game);
         }
 
         // GET: Games/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (!IsValidId(id))
+                return NotFoundWithLogging("Игра", id);
 
-            var game = await _context.Games.FindAsync(id);
-            if (game == null)
+            try
             {
-                return NotFound();
+                var game = await Context.Games.FindAsync(id);
+                if (game == null)
+                    return NotFoundWithLogging("Игра", id);
+
+                PopulateDropdowns(game.CategoryId, game.PublisherId);
+                return View(game);
             }
-            return View(game);
+            catch (Exception ex)
+            {
+                return HandleException(ex, "Edit");
+            }
         }
 
         // POST: Games/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,MinPlayers,MaxPlayers,AverageDuration,Genre")] Game game)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,MinPlayers,MaxPlayers,AverageDuration,Complexity,MinAge,YearPublished,CategoryId,PublisherId")] Game game)
         {
             if (id != game.Id)
-            {
-                return NotFound();
-            }
+                return NotFoundWithLogging("Игра", id);
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(game);
-                    await _context.SaveChangesAsync();
+                    Context.Update(game);
+                    await Context.SaveChangesAsync();
+                    
+                    Logger.LogInformation("Обновлена игра: {GameName} (ID: {GameId})", game.Name, game.Id);
+                    SetSuccessMessage(Constants.SuccessMessages.RecordUpdated);
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateConcurrencyException ex)
                 {
-                    if (!GameExists(game.Id))
+                    if (!await GameExistsAsync(game.Id))
                     {
-                        return NotFound();
+                        return NotFoundWithLogging("Игра", game.Id);
                     }
                     else
                     {
-                        throw;
+                        Logger.LogError(ex, "Ошибка конкурентности при обновлении игры ID: {GameId}", game.Id);
+                        SetErrorMessage("Запись была изменена другим пользователем");
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                catch (Exception ex)
+                {
+                    return HandleException(ex, "Edit");
+                }
             }
+            
+            PopulateDropdowns(game.CategoryId, game.PublisherId);
             return View(game);
         }
 
         // GET: Games/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (!IsValidId(id))
+                return NotFoundWithLogging("Игра", id);
 
-            var game = await _context.Games
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (game == null)
+            try
             {
-                return NotFound();
-            }
+                var game = await Context.Games
+                    .Include(g => g.Category)
+                    .Include(g => g.Publisher)
+                    .FirstOrDefaultAsync(m => m.Id == id);
+                
+                if (game == null)
+                    return NotFoundWithLogging("Игра", id);
 
-            return View(game);
+                return View(game);
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex, "Delete");
+            }
         }
 
         // POST: Games/Delete/5
@@ -132,19 +187,34 @@ namespace GamesSharp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var game = await _context.Games.FindAsync(id);
-            if (game != null)
+            try
             {
-                _context.Games.Remove(game);
+                var game = await Context.Games.FindAsync(id);
+                if (game != null)
+                {
+                    Context.Games.Remove(game);
+                    await Context.SaveChangesAsync();
+                    
+                    Logger.LogInformation("Удалена игра: {GameName} (ID: {GameId})", game.Name, game.Id);
+                    SetSuccessMessage(Constants.SuccessMessages.RecordDeleted);
+                }
+                return RedirectToAction(nameof(Index));
             }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            catch (Exception ex)
+            {
+                return HandleException(ex, "DeleteConfirmed");
+            }
         }
 
-        private bool GameExists(int id)
+        private async Task<bool> GameExistsAsync(int id)
         {
-            return _context.Games.Any(e => e.Id == id);
+            return await Context.Games.AnyAsync(e => e.Id == id);
+        }
+
+        private void PopulateDropdowns(int? categoryId = null, int? publisherId = null)
+        {
+            ViewBag.CategoryId = new SelectList(Context.GameCategories, "Id", "Name", categoryId);
+            ViewBag.PublisherId = new SelectList(Context.Publishers, "Id", "Name", publisherId);
         }
     }
 }

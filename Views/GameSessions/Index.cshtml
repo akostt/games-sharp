@@ -1,56 +1,111 @@
 @model IEnumerable<GamesSharp.Models.GameSession>
 
 @{
-    ViewData["Title"] = "Game Sessions";
+    ViewData["Title"] = "Игровые сессии";
 }
 
-<h1>Game Sessions</h1>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-4">
+            <i class="bi bi-calendar-event"></i> Игровые сессии
+        </h1>
+        <a asp-action="Create" class="btn btn-success btn-lg">
+            <i class="bi bi-plus-circle"></i> Запланировать сессию
+        </a>
+    </div>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Schedule New Session</a>
-</p>
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Game</th>
-            <th>Scheduled Date</th>
-            <th>Location</th>
-            <th>Status</th>
-            <th>Players</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>@Html.DisplayFor(modelItem => item.Game.Name)</td>
-            <td>@item.ScheduledDate.ToString("yyyy-MM-dd HH:mm")</td>
-            <td>@Html.DisplayFor(modelItem => item.Location)</td>
-            <td>
-                @if (item.Status == "Completed")
-                {
-                    <span class="badge bg-success">@item.Status</span>
-                }
-                else if (item.Status == "InProgress")
-                {
-                    <span class="badge bg-primary">In Progress</span>
-                }
-                else if (item.Status == "Cancelled")
-                {
-                    <span class="badge bg-danger">@item.Status</span>
-                }
-                else
-                {
-                    <span class="badge bg-secondary">@item.Status</span>
-                }
-            </td>
-            <td>@item.SessionPlayers.Count</td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
-                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
-                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th><i class="bi bi-dice-5"></i> Игра</th>
+                        <th><i class="bi bi-clock"></i> Дата и время</th>
+                        <th><i class="bi bi-geo-alt"></i> Место</th>
+                        <th><i class="bi bi-check-circle"></i> Статус</th>
+                        <th><i class="bi bi-people"></i> Игроков</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+            @foreach (var item in Model) {
+                    <tr>
+                        <td>
+                            <strong>@Html.DisplayFor(modelItem => item.Game.Name)</strong>
+                            @if (!string.IsNullOrEmpty(item.Organizer))
+                            {
+                                <br/><small class="text-muted"><i class="bi bi-person-badge"></i> @item.Organizer</small>
+                            }
+                        </td>
+                        <td>
+                            <i class="bi bi-calendar3"></i> @item.ScheduledDate.ToString("dd.MM.yyyy")
+                            <br/>
+                            <small><i class="bi bi-clock"></i> @item.ScheduledDate.ToString("HH:mm")</small>
+                        </td>
+                        <td>
+                            @if (item.Venue != null)
+                            {
+                                <i class="bi bi-building"></i> @item.Venue.Name
+                                if (!string.IsNullOrEmpty(item.Venue.Address))
+                                {
+                                    <br/><small class="text-muted">@item.Venue.Address</small>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">Не указано</span>
+                            }
+                        </td>
+                        <td>
+                            @switch (item.Status)
+                            {
+                                case "Завершена":
+                                    <span class="badge bg-success"><i class="bi bi-check-circle-fill"></i> Завершена</span>
+                                    break;
+                                case "В процессе":
+                                    <span class="badge bg-primary"><i class="bi bi-play-circle-fill"></i> В процессе</span>
+                                    break;
+                                case "Отменена":
+                                    <span class="badge bg-danger"><i class="bi bi-x-circle-fill"></i> Отменена</span>
+                                    break;
+                                default:
+                                    <span class="badge bg-secondary"><i class="bi bi-calendar-check"></i> Запланирована</span>
+                                    break;
+                            }
+                        </td>
+                        <td>
+                            <span class="badge bg-info">
+                                <i class="bi bi-people-fill"></i> @item.SessionPlayers.Count
+                                @if (item.MaxParticipants.HasValue)
+                                {
+                                    <text> / @item.MaxParticipants</text>
+                                }
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info" title="Подробности">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning" title="Редактировать">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger" title="Удалить">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+            }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info mt-3" role="alert">
+            <i class="bi bi-info-circle"></i> Нет запланированных сессий. <a asp-action="Create" class="alert-link">Создайте первую сессию!</a>
+        </div>
+    }
+</div>

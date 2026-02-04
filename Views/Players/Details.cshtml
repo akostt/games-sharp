@@ -1,10 +1,11 @@
 @model GamesSharp.Models.Player
 
 @{
-    ViewData["Title"] = "Player Details";
+    ViewData["Title"] = "Детали игрока";
 }
 
-<h1>Player Details</h1>
+<div class="container mt-4">
+    <h1><i class="bi bi-person"></i> Детали игрока</h1>
 
 <div>
     <hr />
@@ -23,18 +24,18 @@
     </dl>
 </div>
 
-<div>
-    <h3>Game Sessions</h3>
+<div class="mt-4">
+    <h3><i class="bi bi-calendar-event"></i> Игровые сессии</h3>
     @if (Model.SessionPlayers.Any())
     {
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Game</th>
-                    <th>Scheduled Date</th>
-                    <th>Status</th>
-                    <th>Score</th>
-                    <th>Winner</th>
+                    <th>Игра</th>
+                    <th>Дата</th>
+                    <th>Статус</th>
+                    <th>Очки</th>
+                    <th>Победитель</th>
                 </tr>
             </thead>
             <tbody>
@@ -42,10 +43,10 @@
                 {
                     <tr>
                         <td>@sp.GameSession.Game.Name</td>
-                        <td>@sp.GameSession.ScheduledDate.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@sp.GameSession.ScheduledDate.ToString("dd.MM.yyyy HH:mm")</td>
                         <td>@sp.GameSession.Status</td>
                         <td>@(sp.Score.HasValue ? sp.Score.Value.ToString() : "-")</td>
-                        <td>@(sp.IsWinner ? "Yes" : "-")</td>
+                        <td>@(sp.IsWinner ? "Да" : "-")</td>
                     </tr>
                 }
             </tbody>
@@ -53,11 +54,16 @@
     }
     else
     {
-        <p>No game sessions yet.</p>
+        <p class="text-muted">Нет игровых сессий.</p>
     }
 </div>
 
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
-    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+<div class="mt-4">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+        <i class="bi bi-pencil"></i> Редактировать
+    </a>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Назад к списку
+    </a>
+</div>
 </div>

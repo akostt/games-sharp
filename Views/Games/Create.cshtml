@@ -1,58 +1,115 @@
 @model GamesSharp.Models.Game
 
 @{
-    ViewData["Title"] = "Create Game";
+    ViewData["Title"] = "Создать игру";
 }
 
-<h1>Create New Game</h1>
-
-<hr />
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group mb-3">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="Description" class="control-label"></label>
-                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="Genre" class="control-label"></label>
-                <input asp-for="Genre" class="form-control" />
-                <span asp-validation-for="Genre" class="text-danger"></span>
-            </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group mb-3">
-                        <label asp-for="MinPlayers" class="control-label"></label>
-                        <input asp-for="MinPlayers" class="form-control" type="number" min="1" />
-                        <span asp-validation-for="MinPlayers" class="text-danger"></span>
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h2><i class="bi bi-plus-circle"></i> Добавить новую игру</h2>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="Name" class="control-label"></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="YearPublished" class="control-label"></label>
+                            <input asp-for="YearPublished" class="form-control" type="number" />
+                            <span asp-validation-for="YearPublished" class="text-danger"></span>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="form-group mb-3">
-                        <label asp-for="MaxPlayers" class="control-label"></label>
-                        <input asp-for="MaxPlayers" class="form-control" type="number" min="1" />
-                        <span asp-validation-for="MaxPlayers" class="text-danger"></span>
+                
+                <div class="form-group mb-3">
+                    <label asp-for="Description" class="control-label"></label>
+                    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="CategoryId" class="control-label">Категория</label>
+                            <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.CategoryId">
+                                <option value="">-- Выберите категорию --</option>
+                            </select>
+                            <span asp-validation-for="CategoryId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="PublisherId" class="control-label">Издатель</label>
+                            <select asp-for="PublisherId" class="form-select" asp-items="ViewBag.PublisherId">
+                                <option value="">-- Выберите издателя --</option>
+                            </select>
+                            <span asp-validation-for="PublisherId" class="text-danger"></span>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="AverageDuration" class="control-label"></label>
-                <input asp-for="AverageDuration" class="form-control" type="number" min="1" />
-                <span asp-validation-for="AverageDuration" class="text-danger"></span>
-                <small class="form-text text-muted">Duration in minutes</small>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-            </div>
-        </form>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="MinPlayers" class="control-label"></label>
+                            <input asp-for="MinPlayers" class="form-control" type="number" min="1" />
+                            <span asp-validation-for="MinPlayers" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="MaxPlayers" class="control-label"></label>
+                            <input asp-for="MaxPlayers" class="form-control" type="number" min="1" />
+                            <span asp-validation-for="MaxPlayers" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="MinAge" class="control-label"></label>
+                            <input asp-for="MinAge" class="form-control" type="number" min="0" />
+                            <span asp-validation-for="MinAge" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="AverageDuration" class="control-label"></label>
+                            <input asp-for="AverageDuration" class="form-control" type="number" min="1" />
+                            <span asp-validation-for="AverageDuration" class="text-danger"></span>
+                            <small class="form-text text-muted">Длительность в минутах</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="Complexity" class="control-label"></label>
+                            <input asp-for="Complexity" class="form-control" type="number" min="1" max="10" />
+                            <span asp-validation-for="Complexity" class="text-danger"></span>
+                            <small class="form-text text-muted">От 1 до 10</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="bi bi-check-circle"></i> Создать
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary btn-lg">
+                        <i class="bi bi-arrow-left"></i> Назад
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 

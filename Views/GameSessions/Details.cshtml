@@ -1,28 +1,29 @@
 @model GamesSharp.Models.GameSession
 
 @{
-    ViewData["Title"] = "Game Session Details";
+    ViewData["Title"] = "Детали сессии";
 }
 
-<h1>Game Session Details</h1>
+<div class="container mt-4">
+    <h1><i class="bi bi-calendar-event"></i> Детали игровой сессии</h1>
 
 <div>
     <hr />
     <dl class="row">
-        <dt class="col-sm-3">Game</dt>
+        <dt class="col-sm-3">Игра</dt>
         <dd class="col-sm-9">@Model.Game.Name</dd>
         
         <dt class="col-sm-3">@Html.DisplayNameFor(model => model.ScheduledDate)</dt>
-        <dd class="col-sm-9">@Model.ScheduledDate.ToString("yyyy-MM-dd HH:mm")</dd>
+        <dd class="col-sm-9">@Model.ScheduledDate.ToString("dd.MM.yyyy HH:mm")</dd>
         
         <dt class="col-sm-3">@Html.DisplayNameFor(model => model.ActualStartTime)</dt>
-        <dd class="col-sm-9">@(Model.ActualStartTime.HasValue ? Model.ActualStartTime.Value.ToString("yyyy-MM-dd HH:mm") : "-")</dd>
+        <dd class="col-sm-9">@(Model.ActualStartTime.HasValue ? Model.ActualStartTime.Value.ToString("dd.MM.yyyy HH:mm") : "-")</dd>
         
         <dt class="col-sm-3">@Html.DisplayNameFor(model => model.ActualEndTime)</dt>
-        <dd class="col-sm-9">@(Model.ActualEndTime.HasValue ? Model.ActualEndTime.Value.ToString("yyyy-MM-dd HH:mm") : "-")</dd>
+        <dd class="col-sm-9">@(Model.ActualEndTime.HasValue ? Model.ActualEndTime.Value.ToString("dd.MM.yyyy HH:mm") : "-")</dd>
         
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Location)</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.Location)</dd>
+        <dt class="col-sm-3">Место проведения</dt>
+        <dd class="col-sm-9">@(Model.Venue?.Name ?? "-")</dd>
         
         <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Status)</dt>
         <dd class="col-sm-9">
@@ -32,7 +33,7 @@
             }
             else if (Model.Status == "InProgress")
             {
-                <span class="badge bg-primary">In Progress</span>
+                <span class="badge bg-primary">В процессе</span>
             }
             else if (Model.Status == "Cancelled")
             {
@@ -49,16 +50,16 @@
     </dl>
 </div>
 
-<div>
-    <h3>Players</h3>
+<div class="mt-4">
+    <h3><i class="bi bi-people"></i> Игроки</h3>
     @if (Model.SessionPlayers.Any())
     {
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Player Name</th>
-                    <th>Score</th>
-                    <th>Winner</th>
+                    <th>Имя игрока</th>
+                    <th>Очки</th>
+                    <th>Победитель</th>
                 </tr>
             </thead>
             <tbody>
@@ -75,11 +76,16 @@
     }
     else
     {
-        <p>No players assigned to this session.</p>
+        <p class="text-muted">Нет игроков в этой сессии.</p>
     }
 </div>
 
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
-    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+<div class="mt-4">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+        <i class="bi bi-pencil"></i> Редактировать
+    </a>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Назад к списку
+    </a>
+</div>
 </div>

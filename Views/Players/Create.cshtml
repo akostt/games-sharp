@@ -1,10 +1,11 @@
 @model GamesSharp.Models.Player
 
 @{
-    ViewData["Title"] = "Create Player";
+    ViewData["Title"] = "Регистрация игрока";
 }
 
-<h1>Register New Player</h1>
+<div class="container mt-4">
+    <h1><i class="bi bi-person-plus"></i> Регистрация нового игрока</h1>
 
 <hr />
 <div class="row">
@@ -26,9 +27,9 @@
                 <input asp-for="Phone" class="form-control" />
                 <span asp-validation-for="Phone" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            <div class="form-group mt-3">
+                <input type="submit" value="Создать" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Назад к списку</a>
             </div>
         </form>
     </div>

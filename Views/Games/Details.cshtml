@@ -1,65 +1,95 @@
 @model GamesSharp.Models.Game
 
 @{
-    ViewData["Title"] = "Game Details";
+    ViewData["Title"] = "Детали игры";
 }
 
-<h1>Game Details</h1>
-
-<div>
+<div class="container mt-4">
+    <h1><i class="bi bi-dice-5"></i> Детали игры</h1>
     <hr />
-    <dl class="row">
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Name)</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.Name)</dd>
-        
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Description)</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.Description)</dd>
-        
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Genre)</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.Genre)</dd>
-        
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.MinPlayers)</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.MinPlayers)</dd>
-        
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.MaxPlayers)</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.MaxPlayers)</dd>
-        
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.AverageDuration)</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.AverageDuration) minutes</dd>
-    </dl>
-</div>
-
-<div>
-    <h3>Game Sessions</h3>
-    @if (Model.GameSessions.Any())
-    {
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Scheduled Date</th>
-                    <th>Status</th>
-                    <th>Location</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var session in Model.GameSessions)
+    
+    <div class="card">
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Name)</dt>
+                <dd class="col-sm-9"><strong>@Html.DisplayFor(model => model.Name)</strong></dd>
+                
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Description)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Description)</dd>
+                
+                <dt class="col-sm-3">Категория</dt>
+                <dd class="col-sm-9">@(Model.Category?.Name ?? "-")</dd>
+                
+                <dt class="col-sm-3">Издатель</dt>
+                <dd class="col-sm-9">@(Model.Publisher?.Name ?? "-")</dd>
+                
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.MinPlayers)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.MinPlayers)</dd>
+                
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.MaxPlayers)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.MaxPlayers)</dd>
+                
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.AverageDuration)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.AverageDuration) мин</dd>
+                
+                @if (Model.Complexity.HasValue)
                 {
-                    <tr>
-                        <td>@session.ScheduledDate.ToString("yyyy-MM-dd HH:mm")</td>
-                        <td>@session.Status</td>
-                        <td>@session.Location</td>
-                    </tr>
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Complexity)</dt>
+                    <dd class="col-sm-9">@Model.Complexity / 10</dd>
                 }
-            </tbody>
-        </table>
-    }
-    else
-    {
-        <p>No game sessions scheduled yet.</p>
-    }
+                
+                @if (Model.MinAge.HasValue)
+                {
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.MinAge)</dt>
+                    <dd class="col-sm-9">@Model.MinAge+</dd>
+                }
+                
+                @if (Model.YearPublished.HasValue)
+                {
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.YearPublished)</dt>
+                    <dd class="col-sm-9">@Model.YearPublished</dd>
+                }
+            </dl>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <h3><i class="bi bi-calendar-event"></i> Игровые сессии</h3>
+        @if (Model.GameSessions.Any())
+        {
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Статус</th>
+                        <th>Место</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var session in Model.GameSessions)
+                    {
+                        <tr>
+                            <td>@session.ScheduledDate.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>@session.Status</td>
+                            <td>@(session.Venue?.Name ?? "-")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="text-muted">Нет запланированных сессий.</p>
+        }
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Редактировать
+        </a>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Назад к списку
+        </a>
+    </div>
 </div>
 
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
-    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-</div>

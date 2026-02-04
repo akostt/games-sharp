@@ -20,6 +20,7 @@ namespace GamesSharp.Controllers
         {
             var gameSessions = await _context.GameSessions
                 .Include(g => g.Game)
+                .Include(g => g.Venue)
                 .Include(g => g.SessionPlayers)
                     .ThenInclude(sp => sp.Player)
                 .OrderByDescending(g => g.ScheduledDate)
@@ -37,6 +38,7 @@ namespace GamesSharp.Controllers
 
             var gameSession = await _context.GameSessions
                 .Include(g => g.Game)
+                .Include(g => g.Venue)
                 .Include(g => g.SessionPlayers)
                     .ThenInclude(sp => sp.Player)
                 .FirstOrDefaultAsync(m => m.Id == id);
@@ -52,6 +54,7 @@ namespace GamesSharp.Controllers
         public IActionResult Create()
         {
             ViewData["GameId"] = new SelectList(_context.Games, "Id", "Name");
+            ViewData["VenueId"] = new SelectList(_context.Venues, "Id", "Name");
             ViewData["Players"] = new MultiSelectList(_context.Players, "Id", "Name");
             return View();
         }
@@ -59,11 +62,11 @@ namespace GamesSharp.Controllers
         // POST: GameSessions/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,GameId,ScheduledDate,Location,Notes")] GameSession gameSession, int[] selectedPlayers)
+        public async Task<IActionResult> Create([Bind("Id,GameId,VenueId,ScheduledDate,Notes,Organizer,MaxParticipants")] GameSession gameSession, int[] selectedPlayers)
         {
             if (ModelState.IsValid)
             {
-                gameSession.Status = "Planned";
+                gameSession.Status = "Запланирована";
                 _context.Add(gameSession);
                 await _context.SaveChangesAsync();
 
@@ -85,6 +88,7 @@ namespace GamesSharp.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["GameId"] = new SelectList(_context.Games, "Id", "Name", gameSession.GameId);
+            ViewData["VenueId"] = new SelectList(_context.Venues, "Id", "Name", gameSession.VenueId);
             ViewData["Players"] = new MultiSelectList(_context.Players, "Id", "Name", selectedPlayers);
             return View(gameSession);
         }
@@ -105,6 +109,7 @@ namespace GamesSharp.Controllers
                 return NotFound();
             }
             ViewData["GameId"] = new SelectList(_context.Games, "Id", "Name", gameSession.GameId);
+            ViewData["VenueId"] = new SelectList(_context.Venues, "Id", "Name", gameSession.VenueId);
             ViewData["Players"] = new MultiSelectList(_context.Players, "Id", "Name", 
                 gameSession.SessionPlayers.Select(sp => sp.PlayerId).ToArray());
             return View(gameSession);
@@ -113,7 +118,7 @@ namespace GamesSharp.Controllers
         // POST: GameSessions/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,GameId,ScheduledDate,ActualStartTime,ActualEndTime,Location,Status,Notes")] GameSession gameSession, int[] selectedPlayers)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,GameId,VenueId,ScheduledDate,ActualStartTime,ActualEndTime,Status,Notes,Organizer,MaxParticipants")] GameSession gameSession, int[] selectedPlayers)
         {
             if (id != gameSession.Id)
             {
