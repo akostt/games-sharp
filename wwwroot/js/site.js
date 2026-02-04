@@ -64,6 +64,53 @@ document.addEventListener('DOMContentLoaded', function () {
         firstInput.focus();
     }
 
+    // Автоматическое форматирование номера телефона
+    const phoneInputs = document.querySelectorAll('input[type="tel"], input[name="Phone"]');
+    phoneInputs.forEach(input => {
+        input.addEventListener('input', function (e) {
+            let value = e.target.value.replace(/\D/g, ''); // Удаляем все нецифровые символы
+            
+            // Если номер начинается с 8, заменяем на 7
+            if (value.startsWith('8')) {
+                value = '7' + value.substring(1);
+            }
+            
+            // Если номер не начинается с 7, добавляем 7
+            if (value.length > 0 && !value.startsWith('7')) {
+                value = '7' + value;
+            }
+            
+            // Форматируем номер
+            let formattedValue = '';
+            if (value.length > 0) {
+                formattedValue = '+7';
+                if (value.length > 1) {
+                    formattedValue += ' (' + value.substring(1, 4);
+                }
+                if (value.length >= 5) {
+                    formattedValue += ') ' + value.substring(4, 7);
+                }
+                if (value.length >= 8) {
+                    formattedValue += '-' + value.substring(7, 9);
+                }
+                if (value.length >= 10) {
+                    formattedValue += '-' + value.substring(9, 11);
+                }
+            }
+            
+            e.target.value = formattedValue;
+        });
+
+        // Устанавливаем placeholder
+        input.setAttribute('placeholder', '+7 (XXX) XXX-XX-XX');
+        
+        // Если поле уже содержит значение, форматируем его
+        if (input.value) {
+            const event = new Event('input', { bubbles: true });
+            input.dispatchEvent(event);
+        }
+    });
+
     // Плавная прокрутка к якорям
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {

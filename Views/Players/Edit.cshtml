@@ -26,8 +26,9 @@
             </div>
             <div class="form-group mb-3">
                 <label asp-for="Phone" class="control-label"></label>
-                <input asp-for="Phone" class="form-control" />
+                <input asp-for="Phone" class="form-control" type="tel" placeholder="+7 (XXX) XXX-XX-XX" />
                 <span asp-validation-for="Phone" class="text-danger"></span>
+                <small class="form-text text-muted">Формат: +7 (XXX) XXX-XX-XX. Можно начинать с 8</small>
             </div>
             <div class="form-group mt-3">
                 <input type="submit" value="Сохранить" class="btn btn-primary" />
