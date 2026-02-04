@@ -51,7 +51,6 @@ namespace GamesSharp.Models
         public GameCategory? Category { get; set; }
         public Publisher? Publisher { get; set; }
         public ICollection<GameSession> GameSessions { get; set; } = new List<GameSession>();
-        public ICollection<GameReview> GameReviews { get; set; } = new List<GameReview>();
         public ICollection<GameEquipment> GameEquipments { get; set; } = new List<GameEquipment>();
     }
 }

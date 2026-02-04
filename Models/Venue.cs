@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace GamesSharp.Models
 {
@@ -27,6 +28,7 @@ namespace GamesSharp.Models
         
         [Display(Name = "Стоимость аренды (руб./час)")]
         [Range(0, 100000, ErrorMessage = "Стоимость должна быть от 0 до 100000")]
+        [Precision(10, 2)]
         public decimal? RentalCostPerHour { get; set; }
         
         [Display(Name = "Описание")]

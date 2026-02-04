@@ -38,7 +38,5 @@ namespace GamesSharp.Models
 
         // Navigation properties
         public ICollection<SessionPlayer> SessionPlayers { get; set; } = new List<SessionPlayer>();
-        public ICollection<GameReview> GameReviews { get; set; } = new List<GameReview>();
-        public ICollection<Achievement> Achievements { get; set; } = new List<Achievement>();
     }
 }

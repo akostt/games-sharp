@@ -1,0 +1,62 @@
+@model IEnumerable<GamesSharp.Models.Equipment>
+
+@{
+    ViewData["Title"] = "Оборудование";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-4">
+            <i class="bi bi-tools"></i> Оборудование
+        </h1>
+        <a asp-action="Create" class="btn btn-success btn-lg">
+            <i class="bi bi-plus-circle"></i> Добавить оборудование
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>@Html.DisplayNameFor(model => model.Name)</th>
+                        <th>@Html.DisplayNameFor(model => model.Type)</th>
+                        <th>@Html.DisplayNameFor(model => model.Quantity)</th>
+                        <th>@Html.DisplayNameFor(model => model.Description)</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+            @foreach (var item in Model) {
+                    <tr>
+                        <td><strong>@Html.DisplayFor(modelItem => item.Name)</strong></td>
+                        <td>@(string.IsNullOrWhiteSpace(item.Type) ? "-" : item.Type)</td>
+                        <td><span class="badge bg-info">@item.Quantity</span></td>
+                        <td>@(string.IsNullOrWhiteSpace(item.Description) ? "-" : item.Description)</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info" title="Подробности">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning" title="Редактировать">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger" title="Удалить">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+            }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info mt-3" role="alert">
+            <i class="bi bi-info-circle"></i> Нет оборудования. <a asp-action="Create" class="alert-link">Добавьте первое оборудование!</a>
+        </div>
+    }
+</div>

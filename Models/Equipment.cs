@@ -23,7 +23,7 @@ namespace GamesSharp.Models
         [StringLength(500)]
         public string? Description { get; set; }
 
-        // Navigation property
+        // Navigation properties
         public ICollection<GameEquipment> GameEquipments { get; set; } = new List<GameEquipment>();
     }
 }

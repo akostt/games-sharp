@@ -11,10 +11,13 @@
 <div class="row">
     <div class="col-md-8">
         <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+            }
             <div class="form-group mb-3">
                 <label asp-for="GameId" class="control-label">Игра</label>
-                <select asp-for="GameId" class="form-select" asp-items="ViewBag.GameId">
+                <select asp-for="GameId" class="form-select" asp-items="(IEnumerable<SelectListItem>)ViewBag.GameId">
                     <option value="">-- Выберите игру --</option>
                 </select>
                 <span asp-validation-for="GameId" class="text-danger"></span>
@@ -24,14 +27,32 @@
                 <input asp-for="ScheduledDate" class="form-control" type="datetime-local" />
                 <span asp-validation-for="ScheduledDate" class="text-danger"></span>
             </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="ActualStartTime" class="control-label"></label>
+                        <input asp-for="ActualStartTime" class="form-control" type="time" asp-format="{0:HH:mm}" />
+                        <span asp-validation-for="ActualStartTime" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="ActualEndTime" class="control-label"></label>
+                        <input asp-for="ActualEndTime" class="form-control" type="time" asp-format="{0:HH:mm}" />
+                        <span asp-validation-for="ActualEndTime" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
             <div class="form-group mb-3">
-                <label asp-for="VenueId" class="control-label"></label>
-                <input asp-for="VenueId" class="form-control" />
+                <label asp-for="VenueId" class="control-label">Место проведения</label>
+                <select asp-for="VenueId" class="form-select" asp-items="(IEnumerable<SelectListItem>)ViewBag.VenueId">
+                    <option value="">-- Выберите место --</option>
+                </select>
                 <span asp-validation-for="VenueId" class="text-danger"></span>
             </div>
             <div class="form-group mb-3">
                 <label class="control-label">Игроки</label>
-                <select name="selectedPlayers" class="form-select" multiple size="5" asp-items="ViewBag.Players">
+                <select name="selectedPlayers" class="form-select" multiple size="5" asp-items="(IEnumerable<SelectListItem>)ViewBag.Players">
                 </select>
                 <small class="form-text text-muted">Удерживайте Ctrl (или Cmd на Mac) для выбора нескольких игроков</small>
             </div>

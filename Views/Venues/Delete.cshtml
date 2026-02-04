@@ -1,0 +1,33 @@
+@model GamesSharp.Models.Venue
+
+@{
+    ViewData["Title"] = "Удалить место";
+}
+
+<div class="container mt-4">
+    <h1><i class="bi bi-trash"></i> Удалить место проведения</h1>
+    <h3 class="text-danger">Вы уверены, что хотите удалить это место?</h3>
+
+    <div>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Name)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Name)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Address)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Address)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Capacity)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Capacity)</dd>
+
+            <dt class="col-sm-3">Сессий</dt>
+            <dd class="col-sm-9">@Model.GameSessions.Count</dd>
+        </dl>
+
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="Id" />
+            <input type="submit" value="Удалить" class="btn btn-danger" />
+            <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-x-circle"></i> Отмена</a>
+        </form>
+    </div>
+</div>

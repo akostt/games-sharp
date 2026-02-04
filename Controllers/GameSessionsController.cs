@@ -62,10 +62,22 @@ namespace GamesSharp.Controllers
         // POST: GameSessions/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,GameId,VenueId,ScheduledDate,Notes,Organizer,MaxParticipants")] GameSession gameSession, int[] selectedPlayers)
+        public async Task<IActionResult> Create([Bind("Id,GameId,VenueId,ScheduledDate,ActualStartTime,ActualEndTime,Notes,Organizer,MaxParticipants")] GameSession gameSession, int[] selectedPlayers)
         {
             if (ModelState.IsValid)
             {
+                if (gameSession.ActualStartTime.HasValue)
+                {
+                    gameSession.ActualStartTime = gameSession.ScheduledDate.Date
+                        .Add(gameSession.ActualStartTime.Value.TimeOfDay);
+                }
+
+                if (gameSession.ActualEndTime.HasValue)
+                {
+                    gameSession.ActualEndTime = gameSession.ScheduledDate.Date
+                        .Add(gameSession.ActualEndTime.Value.TimeOfDay);
+                }
+
                 gameSession.Status = "Запланирована";
                 _context.Add(gameSession);
                 await _context.SaveChangesAsync();
@@ -129,6 +141,18 @@ namespace GamesSharp.Controllers
             {
                 try
                 {
+                    if (gameSession.ActualStartTime.HasValue)
+                    {
+                        gameSession.ActualStartTime = gameSession.ScheduledDate.Date
+                            .Add(gameSession.ActualStartTime.Value.TimeOfDay);
+                    }
+
+                    if (gameSession.ActualEndTime.HasValue)
+                    {
+                        gameSession.ActualEndTime = gameSession.ScheduledDate.Date
+                            .Add(gameSession.ActualEndTime.Value.TimeOfDay);
+                    }
+
                     _context.Update(gameSession);
                     
                     // Update session players
@@ -166,6 +190,7 @@ namespace GamesSharp.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["GameId"] = new SelectList(_context.Games, "Id", "Name", gameSession.GameId);
+            ViewData["VenueId"] = new SelectList(_context.Venues, "Id", "Name", gameSession.VenueId);
             ViewData["Players"] = new MultiSelectList(_context.Players, "Id", "Name", selectedPlayers);
             return View(gameSession);
         }

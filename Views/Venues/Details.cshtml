@@ -1,0 +1,73 @@
+@model GamesSharp.Models.Venue
+
+@{
+    ViewData["Title"] = "Детали места";
+}
+
+<div class="container mt-4">
+    <h1><i class="bi bi-geo-alt"></i> Детали места проведения</h1>
+    <hr />
+
+    <div class="card">
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Name)</dt>
+                <dd class="col-sm-9"><strong>@Html.DisplayFor(model => model.Name)</strong></dd>
+
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Address)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Address)</dd>
+
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Capacity)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Capacity)</dd>
+
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Phone)</dt>
+                <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Phone) ? "-" : Model.Phone)</dd>
+
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.RentalCostPerHour)</dt>
+                <dd class="col-sm-9">@(Model.RentalCostPerHour.HasValue ? Model.RentalCostPerHour.Value.ToString("0") + " ₽" : "-")</dd>
+
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Description)</dt>
+                <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Description) ? "-" : Model.Description)</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <h3><i class="bi bi-calendar-event"></i> Сессии в этом месте</h3>
+        @if (Model.GameSessions.Any())
+        {
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Игра</th>
+                        <th>Дата</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var session in Model.GameSessions)
+                    {
+                        <tr>
+                            <td>@(session.Game?.Name ?? "-")</td>
+                            <td>@session.ScheduledDate.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>@session.Status</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="text-muted">Нет запланированных сессий.</p>
+        }
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Редактировать
+        </a>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Назад к списку
+        </a>
+    </div>
+</div>

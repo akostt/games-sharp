@@ -4,6 +4,7 @@ using GamesSharp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GamesSharp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260204185049_RemoveUnusedEntities")]
+    partial class RemoveUnusedEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -299,32 +302,6 @@ namespace GamesSharp.Migrations
                         });
                 });
 
-            modelBuilder.Entity("GamesSharp.Models.GameEquipment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("EquipmentId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("GameId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RequiredQuantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EquipmentId");
-
-                    b.HasIndex("GameId");
-
-                    b.ToTable("GameEquipments");
-                });
-
             modelBuilder.Entity("GamesSharp.Models.GameSession", b =>
                 {
                     b.Property<int>("Id")
@@ -591,25 +568,6 @@ namespace GamesSharp.Migrations
                     b.Navigation("Publisher");
                 });
 
-            modelBuilder.Entity("GamesSharp.Models.GameEquipment", b =>
-                {
-                    b.HasOne("GamesSharp.Models.Equipment", "Equipment")
-                        .WithMany("GameEquipments")
-                        .HasForeignKey("EquipmentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("GamesSharp.Models.Game", "Game")
-                        .WithMany("GameEquipments")
-                        .HasForeignKey("GameId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Equipment");
-
-                    b.Navigation("Game");
-                });
-
             modelBuilder.Entity("GamesSharp.Models.GameSession", b =>
                 {
                     b.HasOne("GamesSharp.Models.Game", "Game")
@@ -647,15 +605,8 @@ namespace GamesSharp.Migrations
                     b.Navigation("Player");
                 });
 
-            modelBuilder.Entity("GamesSharp.Models.Equipment", b =>
-                {
-                    b.Navigation("GameEquipments");
-                });
-
             modelBuilder.Entity("GamesSharp.Models.Game", b =>
                 {
-                    b.Navigation("GameEquipments");
-
                     b.Navigation("GameSessions");
                 });
 

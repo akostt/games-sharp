@@ -7,6 +7,7 @@ namespace GamesSharp.Models
         public int Id { get; set; }
         
         [Display(Name = "Игра")]
+        [Required(ErrorMessage = "Выберите игру")]
         public int GameId { get; set; }
         
         [Display(Name = "Место проведения")]
@@ -40,7 +41,7 @@ namespace GamesSharp.Models
         public int? MaxParticipants { get; set; }
 
         // Navigation properties
-        public Game Game { get; set; } = null!;
+        public Game? Game { get; set; }
         public Venue? Venue { get; set; }
         public ICollection<SessionPlayer> SessionPlayers { get; set; } = new List<SessionPlayer>();
     }

@@ -30,6 +30,21 @@
                 <span asp-validation-for="Phone" class="text-danger"></span>
                 <small class="form-text text-muted">Формат: +7 (XXX) XXX-XX-XX. Можно начинать с 8</small>
             </div>
+            <div class="form-group mb-3">
+                <label asp-for="BirthDate" class="control-label"></label>
+                <input asp-for="BirthDate" class="form-control" type="date" />
+                <span asp-validation-for="BirthDate" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="City" class="control-label"></label>
+                <input asp-for="City" class="form-control" />
+                <span asp-validation-for="City" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="FavoriteGenre" class="control-label"></label>
+                <input asp-for="FavoriteGenre" class="form-control" placeholder="напр. Стратегия, Кооперация, Абстракт" />
+                <span asp-validation-for="FavoriteGenre" class="text-danger"></span>
+            </div>
             <div class="form-group mt-3">
                 <input type="submit" value="Сохранить" class="btn btn-primary" />
                 <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Назад к списку</a>

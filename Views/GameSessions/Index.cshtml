@@ -31,7 +31,7 @@
             @foreach (var item in Model) {
                     <tr>
                         <td>
-                            <strong>@Html.DisplayFor(modelItem => item.Game.Name)</strong>
+                            <strong>@(item.Game?.Name ?? "-")</strong>
                             @if (!string.IsNullOrEmpty(item.Organizer))
                             {
                                 <br/><small class="text-muted"><i class="bi bi-person-badge"></i> @item.Organizer</small>

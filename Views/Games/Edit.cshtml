@@ -23,24 +23,63 @@
                 <textarea asp-for="Description" class="form-control" rows="3"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-            <div class="form-group mb-3">
-                <label asp-for="CategoryId" class="control-label"></label>
-                <input asp-for="CategoryId" class="form-control" />
-                <span asp-validation-for="CategoryId" class="text-danger"></span>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="CategoryId" class="control-label">Категория</label>
+                        <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.CategoryId">
+                            <option value="">-- Выберите категорию --</option>
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="PublisherId" class="control-label">Издатель</label>
+                        <select asp-for="PublisherId" class="form-select" asp-items="ViewBag.PublisherId">
+                            <option value="">-- Выберите издателя --</option>
+                        </select>
+                        <span asp-validation-for="PublisherId" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
             <div class="row">
                 <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="YearPublished" class="control-label"></label>
+                        <input asp-for="YearPublished" class="form-control" type="number" />
+                        <span asp-validation-for="YearPublished" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="Complexity" class="control-label"></label>
+                        <input asp-for="Complexity" class="form-control" type="number" min="1" max="10" />
+                        <span asp-validation-for="Complexity" class="text-danger"></span>
+                        <small class="form-text text-muted">От 1 до 10</small>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
                     <div class="form-group mb-3">
                         <label asp-for="MinPlayers" class="control-label"></label>
                         <input asp-for="MinPlayers" class="form-control" type="number" min="1" />
                         <span asp-validation-for="MinPlayers" class="text-danger"></span>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group mb-3">
                         <label asp-for="MaxPlayers" class="control-label"></label>
                         <input asp-for="MaxPlayers" class="form-control" type="number" min="1" />
                         <span asp-validation-for="MaxPlayers" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group mb-3">
+                        <label asp-for="MinAge" class="control-label"></label>
+                        <input asp-for="MinAge" class="form-control" type="number" min="0" />
+                        <span asp-validation-for="MinAge" class="text-danger"></span>
                     </div>
                 </div>
             </div>

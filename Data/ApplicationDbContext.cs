@@ -19,8 +19,6 @@ namespace GamesSharp.Data
         public DbSet<Venue> Venues { get; set; }
         public DbSet<Equipment> Equipments { get; set; }
         public DbSet<GameEquipment> GameEquipments { get; set; }
-        public DbSet<GameReview> GameReviews { get; set; }
-        public DbSet<Achievement> Achievements { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -65,7 +63,7 @@ namespace GamesSharp.Data
                 .HasForeignKey(sp => sp.PlayerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Configure GameEquipment (many-to-many)
+            // Configure GameEquipment relationships (Many-to-Many)
             modelBuilder.Entity<GameEquipment>()
                 .HasOne(ge => ge.Game)
                 .WithMany(g => g.GameEquipments)
@@ -76,27 +74,7 @@ namespace GamesSharp.Data
                 .HasOne(ge => ge.Equipment)
                 .WithMany(e => e.GameEquipments)
                 .HasForeignKey(ge => ge.EquipmentId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Configure GameReview relationships
-            modelBuilder.Entity<GameReview>()
-                .HasOne(gr => gr.Game)
-                .WithMany(g => g.GameReviews)
-                .HasForeignKey(gr => gr.GameId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<GameReview>()
-                .HasOne(gr => gr.Player)
-                .WithMany(p => p.GameReviews)
-                .HasForeignKey(gr => gr.PlayerId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Configure Achievement relationships
-            modelBuilder.Entity<Achievement>()
-                .HasOne(a => a.Player)
-                .WithMany(p => p.Achievements)
-                .HasForeignKey(a => a.PlayerId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Seed initial data
             SeedData(modelBuilder);

@@ -1,0 +1,37 @@
+@model GamesSharp.Models.Equipment
+
+@{
+    ViewData["Title"] = "Детали оборудования";
+}
+
+<div class="container mt-4">
+    <h1><i class="bi bi-tools"></i> Детали оборудования</h1>
+    <hr />
+
+    <div class="card">
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Name)</dt>
+                <dd class="col-sm-9"><strong>@Html.DisplayFor(model => model.Name)</strong></dd>
+
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Type)</dt>
+                <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Type) ? "-" : Model.Type)</dd>
+
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Quantity)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Quantity)</dd>
+
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Description)</dt>
+                <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Description) ? "-" : Model.Description)</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Редактировать
+        </a>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Назад к списку
+        </a>
+    </div>
+</div>
