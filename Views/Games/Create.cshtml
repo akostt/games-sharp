@@ -39,15 +39,6 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group mb-3">
-                            <label asp-for="CategoryId" class="control-label">Категория</label>
-                            <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.CategoryId">
-                                <option value="">-- Выберите категорию --</option>
-                            </select>
-                            <span asp-validation-for="CategoryId" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group mb-3">
                             <label asp-for="PublisherId" class="control-label">Издатель</label>
                             <select asp-for="PublisherId" class="form-select" asp-items="ViewBag.PublisherId">
                                 <option value="">-- Выберите издателя --</option>
@@ -56,6 +47,38 @@
                         </div>
                     </div>
                 </div>
+
+                @if (ViewBag.AllCategories != null && ((List<GamesSharp.Models.GameCategory>)ViewBag.AllCategories).Any())
+                {
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="bi bi-tags"></i> Категории</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">Можно выбрать несколько категорий:</p>
+                            @{
+                                var selectedCategoryIds = ViewBag.SelectedCategoryIds as List<int> ?? new List<int>();
+                            }
+                            @foreach (var category in (List<GamesSharp.Models.GameCategory>)ViewBag.AllCategories)
+                            {
+                                var isSelected = selectedCategoryIds.Contains(category.Id);
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox"
+                                           name="selectedCategoryIds" value="@category.Id"
+                                           id="category_@category.Id"
+                                           @(isSelected ? "checked" : "") />
+                                    <label class="form-check-label" for="category_@category.Id">
+                                        <strong>@category.Name</strong>
+                                        @if (!string.IsNullOrWhiteSpace(category.Description))
+                                        {
+                                            <small class="text-muted d-block">@category.Description</small>
+                                        }
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
                 
                 <div class="row">
                     <div class="col-md-4">

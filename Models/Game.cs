@@ -44,13 +44,12 @@ namespace GamesSharp.Models
         public int? YearPublished { get; set; }
         
         // Foreign keys
-        public int? CategoryId { get; set; }
         public int? PublisherId { get; set; }
 
         // Navigation properties
-        public GameCategory? Category { get; set; }
         public Publisher? Publisher { get; set; }
         public ICollection<GameSession> GameSessions { get; set; } = new List<GameSession>();
         public ICollection<GameEquipment> GameEquipments { get; set; } = new List<GameEquipment>();
+        public ICollection<GameCategoryAssignment> GameCategoryAssignments { get; set; } = new List<GameCategoryAssignment>();
     }
 }

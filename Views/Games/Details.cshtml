@@ -17,8 +17,20 @@
                 <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Description)</dt>
                 <dd class="col-sm-9">@Html.DisplayFor(model => model.Description)</dd>
                 
-                <dt class="col-sm-3">Категория</dt>
-                <dd class="col-sm-9">@(Model.Category?.Name ?? "-")</dd>
+                <dt class="col-sm-3">Категории</dt>
+                <dd class="col-sm-9">
+                    @if (Model.GameCategoryAssignments.Any())
+                    {
+                        foreach (var category in Model.GameCategoryAssignments.Select(gca => gca.GameCategory).Where(gc => gc != null))
+                        {
+                            <span class="badge bg-info me-1">@category!.Name</span>
+                        }
+                    }
+                    else
+                    {
+                        <span>-</span>
+                    }
+                </dd>
                 
                 <dt class="col-sm-3">Издатель</dt>
                 <dd class="col-sm-9">@(Model.Publisher?.Name ?? "-")</dd>

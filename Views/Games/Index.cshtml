@@ -20,7 +20,7 @@
                 <thead class="table-dark">
                     <tr>
                         <th>@Html.DisplayNameFor(model => model.Name)</th>
-                        <th>Категория</th>
+                        <th>Категории</th>
                         <th>Издатель</th>
                         <th>@Html.DisplayNameFor(model => model.MinPlayers)</th>
                         <th>@Html.DisplayNameFor(model => model.MaxPlayers)</th>
@@ -39,9 +39,16 @@
                             }
                         </td>
                         <td>
-                            @if (item.Category != null)
+                            @if (item.GameCategoryAssignments.Any())
                             {
-                                <span class="badge bg-info">@item.Category.Name</span>
+                                foreach (var category in item.GameCategoryAssignments.Select(gca => gca.GameCategory).Where(gc => gc != null))
+                                {
+                                    <span class="badge bg-info me-1">@category!.Name</span>
+                                }
+                            }
+                            else
+                            {
+                                <span>-</span>
                             }
                         </td>
                         <td>@(item.Publisher?.Name ?? "-")</td>

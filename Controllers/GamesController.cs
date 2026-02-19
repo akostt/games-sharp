@@ -20,7 +20,8 @@ namespace GamesSharp.Controllers
             try
             {
                 var games = await Context.Games
-                    .Include(g => g.Category)
+                    .Include(g => g.GameCategoryAssignments)
+                        .ThenInclude(gca => gca.GameCategory)
                     .Include(g => g.Publisher)
                     .ToListAsync();
                 
@@ -42,7 +43,8 @@ namespace GamesSharp.Controllers
             try
             {
                 var game = await Context.Games
-                    .Include(g => g.Category)
+                    .Include(g => g.GameCategoryAssignments)
+                        .ThenInclude(gca => gca.GameCategory)
                     .Include(g => g.Publisher)
                     .Include(g => g.GameEquipments)
                         .ThenInclude(ge => ge.Equipment)
@@ -67,7 +69,8 @@ namespace GamesSharp.Controllers
         // GET: Games/Create
         public async Task<IActionResult> Create()
         {
-            PopulateDropdowns();
+            PopulateCategoryList();
+            PopulatePublisherList();
             await PopulateEquipmentList();
             return View();
         }
@@ -75,7 +78,7 @@ namespace GamesSharp.Controllers
         // POST: Games/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Description,MinPlayers,MaxPlayers,AverageDuration,Complexity,MinAge,YearPublished,CategoryId,PublisherId")] Game game, List<int>? selectedEquipment, Dictionary<int, int>? equipmentQuantities)
+        public async Task<IActionResult> Create([Bind("Id,Name,Description,MinPlayers,MaxPlayers,AverageDuration,Complexity,MinAge,YearPublished,PublisherId")] Game game, List<int>? selectedCategoryIds, List<int>? selectedEquipment, Dictionary<int, int>? equipmentQuantities)
         {
             if (ModelState.IsValid)
             {
@@ -83,6 +86,19 @@ namespace GamesSharp.Controllers
                 {
                     Context.Add(game);
                     await Context.SaveChangesAsync();
+
+                    if (selectedCategoryIds != null && selectedCategoryIds.Any())
+                    {
+                        foreach (var categoryId in selectedCategoryIds.Distinct())
+                        {
+                            Context.GameCategoryAssignments.Add(new GameCategoryAssignment
+                            {
+                                GameId = game.Id,
+                                GameCategoryId = categoryId
+                            });
+                        }
+                        await Context.SaveChangesAsync();
+                    }
                     
                     // Add selected equipment
                     if (selectedEquipment != null && selectedEquipment.Any())
@@ -115,7 +131,8 @@ namespace GamesSharp.Controllers
                 }
             }
             
-            PopulateDropdowns(game.CategoryId, game.PublisherId);
+            PopulateCategoryList(selectedCategoryIds);
+            PopulatePublisherList(game.PublisherId);
             await PopulateEquipmentList();
             return View(game);
         }
@@ -128,11 +145,17 @@ namespace GamesSharp.Controllers
 
             try
             {
-                var game = await Context.Games.FindAsync(id);
+                var game = await Context.Games
+                    .Include(g => g.GameCategoryAssignments)
+                    .FirstOrDefaultAsync(g => g.Id == id);
                 if (game == null)
                     return NotFoundWithLogging("Игра", id);
 
-                PopulateDropdowns(game.CategoryId, game.PublisherId);
+                var selectedCategoryIds = game.GameCategoryAssignments
+                    .Select(gca => gca.GameCategoryId)
+                    .ToList();
+                PopulateCategoryList(selectedCategoryIds);
+                PopulatePublisherList(game.PublisherId);
                 await PopulateEquipmentList(game.Id);
                 return View(game);
             }
@@ -145,7 +168,7 @@ namespace GamesSharp.Controllers
         // POST: Games/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,MinPlayers,MaxPlayers,AverageDuration,Complexity,MinAge,YearPublished,CategoryId,PublisherId")] Game game, List<int>? selectedEquipment, Dictionary<int, int>? equipmentQuantities)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,MinPlayers,MaxPlayers,AverageDuration,Complexity,MinAge,YearPublished,PublisherId")] Game game, List<int>? selectedCategoryIds, List<int>? selectedEquipment, Dictionary<int, int>? equipmentQuantities)
         {
             if (id != game.Id)
                 return NotFoundWithLogging("Игра", id);
@@ -156,6 +179,22 @@ namespace GamesSharp.Controllers
                 {
                     Context.Update(game);
                     await Context.SaveChangesAsync();
+
+                    var existingCategories = Context.GameCategoryAssignments
+                        .Where(gca => gca.GameId == game.Id);
+                    Context.GameCategoryAssignments.RemoveRange(existingCategories);
+
+                    if (selectedCategoryIds != null && selectedCategoryIds.Any())
+                    {
+                        foreach (var categoryId in selectedCategoryIds.Distinct())
+                        {
+                            Context.GameCategoryAssignments.Add(new GameCategoryAssignment
+                            {
+                                GameId = game.Id,
+                                GameCategoryId = categoryId
+                            });
+                        }
+                    }
                     
                     // Remove existing equipment associations
                     var existingEquipment = Context.GameEquipments.Where(ge => ge.GameId == game.Id);
@@ -204,7 +243,8 @@ namespace GamesSharp.Controllers
                 }
             }
             
-            PopulateDropdowns(game.CategoryId, game.PublisherId);
+            PopulateCategoryList(selectedCategoryIds);
+            PopulatePublisherList(game.PublisherId);
             await PopulateEquipmentList(game.Id);
             return View(game);
         }
@@ -218,7 +258,8 @@ namespace GamesSharp.Controllers
             try
             {
                 var game = await Context.Games
-                    .Include(g => g.Category)
+                    .Include(g => g.GameCategoryAssignments)
+                        .ThenInclude(gca => gca.GameCategory)
                     .Include(g => g.Publisher)
                     .FirstOrDefaultAsync(m => m.Id == id);
                 
@@ -262,10 +303,15 @@ namespace GamesSharp.Controllers
             return await Context.Games.AnyAsync(e => e.Id == id);
         }
 
-        private void PopulateDropdowns(int? categoryId = null, int? publisherId = null)
+        private void PopulatePublisherList(int? publisherId = null)
         {
-            ViewBag.CategoryId = new SelectList(Context.GameCategories, "Id", "Name", categoryId);
             ViewBag.PublisherId = new SelectList(Context.Publishers, "Id", "Name", publisherId);
+        }
+
+        private void PopulateCategoryList(List<int>? selectedCategoryIds = null)
+        {
+            ViewBag.AllCategories = Context.GameCategories.ToList();
+            ViewBag.SelectedCategoryIds = selectedCategoryIds ?? new List<int>();
         }
 
         private async Task PopulateEquipmentList(int? gameId = null)

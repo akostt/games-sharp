@@ -16,6 +16,6 @@ namespace GamesSharp.Models
         public string? Description { get; set; }
 
         // Navigation property
-        public ICollection<Game> Games { get; set; } = new List<Game>();
+        public ICollection<GameCategoryAssignment> GameCategoryAssignments { get; set; } = new List<GameCategoryAssignment>();
     }
 }

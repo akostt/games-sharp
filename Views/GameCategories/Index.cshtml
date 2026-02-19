@@ -30,7 +30,7 @@
                     <tr>
                         <td><strong>@Html.DisplayFor(modelItem => item.Name)</strong></td>
                         <td>@Html.DisplayFor(modelItem => item.Description)</td>
-                        <td><span class="badge bg-info">@item.Games.Count</span></td>
+                        <td><span class="badge bg-info">@item.GameCategoryAssignments.Count</span></td>
                         <td>
                             <div class="btn-group" role="group">
                                 <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info" title="Подробности">

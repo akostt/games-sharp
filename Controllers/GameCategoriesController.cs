@@ -19,7 +19,7 @@ namespace GamesSharp.Controllers
             try
             {
                 var categories = await Context.GameCategories
-                    .Include(c => c.Games)
+                    .Include(c => c.GameCategoryAssignments)
                     .ToListAsync();
                 
                 Logger.LogInformation("Загружено {Count} категорий", categories.Count);
@@ -40,7 +40,7 @@ namespace GamesSharp.Controllers
             try
             {
                 var category = await Context.GameCategories
-                    .Include(c => c.Games)
+                    .Include(c => c.GameCategoryAssignments)
                     .FirstOrDefaultAsync(m => m.Id == id);
                 
                 if (category == null)
@@ -155,7 +155,7 @@ namespace GamesSharp.Controllers
             try
             {
                 var category = await Context.GameCategories
-                    .Include(c => c.Games)
+                    .Include(c => c.GameCategoryAssignments)
                     .FirstOrDefaultAsync(m => m.Id == id);
                 
                 if (category == null)

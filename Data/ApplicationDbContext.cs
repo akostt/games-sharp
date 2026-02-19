@@ -15,6 +15,7 @@ namespace GamesSharp.Data
         public DbSet<GameSession> GameSessions { get; set; }
         public DbSet<SessionPlayer> SessionPlayers { get; set; }
         public DbSet<GameCategory> GameCategories { get; set; }
+        public DbSet<GameCategoryAssignment> GameCategoryAssignments { get; set; }
         public DbSet<Publisher> Publishers { get; set; }
         public DbSet<Venue> Venues { get; set; }
         public DbSet<Equipment> Equipments { get; set; }
@@ -26,16 +27,23 @@ namespace GamesSharp.Data
 
             // Configure Game relationships
             modelBuilder.Entity<Game>()
-                .HasOne(g => g.Category)
-                .WithMany(c => c.Games)
-                .HasForeignKey(g => g.CategoryId)
-                .OnDelete(DeleteBehavior.SetNull);
-
-            modelBuilder.Entity<Game>()
                 .HasOne(g => g.Publisher)
                 .WithMany(p => p.Games)
                 .HasForeignKey(g => g.PublisherId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            // Configure GameCategoryAssignment relationships (Many-to-Many)
+            modelBuilder.Entity<GameCategoryAssignment>()
+                .HasOne(gca => gca.Game)
+                .WithMany(g => g.GameCategoryAssignments)
+                .HasForeignKey(gca => gca.GameId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<GameCategoryAssignment>()
+                .HasOne(gca => gca.GameCategory)
+                .WithMany(gc => gc.GameCategoryAssignments)
+                .HasForeignKey(gca => gca.GameCategoryId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Configure GameSession relationships
             modelBuilder.Entity<GameSession>()
@@ -123,7 +131,6 @@ namespace GamesSharp.Data
                     MinPlayers = 3, 
                     MaxPlayers = 6, 
                     AverageDuration = 60, 
-                    CategoryId = 4,
                     PublisherId = 1,
                     Complexity = 3,
                     MinAge = 10,
@@ -137,7 +144,6 @@ namespace GamesSharp.Data
                     MinPlayers = 4, 
                     MaxPlayers = 7, 
                     AverageDuration = 45, 
-                    CategoryId = 5,
                     PublisherId = 1,
                     Complexity = 2,
                     MinAge = 12,
@@ -151,7 +157,6 @@ namespace GamesSharp.Data
                     MinPlayers = 2, 
                     MaxPlayers = 5, 
                     AverageDuration = 15, 
-                    CategoryId = 4,
                     PublisherId = 1,
                     Complexity = 1,
                     MinAge = 7,
@@ -165,7 +170,6 @@ namespace GamesSharp.Data
                     MinPlayers = 4, 
                     MaxPlayers = 8, 
                     AverageDuration = 15, 
-                    CategoryId = 5,
                     PublisherId = 2,
                     Complexity = 2,
                     MinAge = 10,
@@ -179,7 +183,6 @@ namespace GamesSharp.Data
                     MinPlayers = 3, 
                     MaxPlayers = 4, 
                     AverageDuration = 75, 
-                    CategoryId = 1,
                     PublisherId = 1,
                     Complexity = 6,
                     MinAge = 10,
@@ -193,7 +196,6 @@ namespace GamesSharp.Data
                     MinPlayers = 4, 
                     MaxPlayers = 12, 
                     AverageDuration = 45, 
-                    CategoryId = 5,
                     PublisherId = 2,
                     Complexity = 1,
                     MinAge = 7,
@@ -207,7 +209,6 @@ namespace GamesSharp.Data
                     MinPlayers = 2, 
                     MaxPlayers = 10, 
                     AverageDuration = 30, 
-                    CategoryId = 4,
                     PublisherId = 2,
                     Complexity = 1,
                     MinAge = 7,
@@ -221,12 +222,22 @@ namespace GamesSharp.Data
                     MinPlayers = 2, 
                     MaxPlayers = 5, 
                     AverageDuration = 40, 
-                    CategoryId = 1,
                     PublisherId = 1,
                     Complexity = 4,
                     MinAge = 8,
                     YearPublished = 2000
                 }
+            );
+
+            modelBuilder.Entity<GameCategoryAssignment>().HasData(
+                new GameCategoryAssignment { Id = 1, GameId = 1, GameCategoryId = 4 },
+                new GameCategoryAssignment { Id = 2, GameId = 2, GameCategoryId = 5 },
+                new GameCategoryAssignment { Id = 3, GameId = 3, GameCategoryId = 4 },
+                new GameCategoryAssignment { Id = 4, GameId = 4, GameCategoryId = 5 },
+                new GameCategoryAssignment { Id = 5, GameId = 5, GameCategoryId = 1 },
+                new GameCategoryAssignment { Id = 6, GameId = 6, GameCategoryId = 5 },
+                new GameCategoryAssignment { Id = 7, GameId = 7, GameCategoryId = 4 },
+                new GameCategoryAssignment { Id = 8, GameId = 8, GameCategoryId = 1 }
             );
         }
     }
