@@ -1,4 +1,4 @@
-@model IEnumerable<GamesSharp.Models.Game>
+@model GamesSharp.Models.PaginatedList<GamesSharp.Models.Game>
 
 @{
     ViewData["Title"] = "Настольные игры";
@@ -19,17 +19,17 @@
             <table class="table table-hover">
                 <thead class="table-dark">
                     <tr>
-                        <th>@Html.DisplayNameFor(model => model.Name)</th>
+                        <th>@Html.DisplayNameFor(model => model.Items.FirstOrDefault().Name)</th>
                         <th>Категории</th>
                         <th>Издатель</th>
-                        <th>@Html.DisplayNameFor(model => model.MinPlayers)</th>
-                        <th>@Html.DisplayNameFor(model => model.MaxPlayers)</th>
-                        <th>@Html.DisplayNameFor(model => model.AverageDuration)</th>
+                        <th>@Html.DisplayNameFor(model => model.Items.FirstOrDefault().MinPlayers)</th>
+                        <th>@Html.DisplayNameFor(model => model.Items.FirstOrDefault().MaxPlayers)</th>
+                        <th>@Html.DisplayNameFor(model => model.Items.FirstOrDefault().AverageDuration)</th>
                         <th>Действия</th>
                     </tr>
                 </thead>
                 <tbody>
-            @foreach (var item in Model) {
+            @foreach (var item in Model.Items) {
                     <tr>
                         <td>
                             <strong>@Html.DisplayFor(modelItem => item.Name)</strong>
@@ -73,5 +73,50 @@
                 </tbody>
             </table>
         </div>
+    </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            @if (Model.HasPreviousPage)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-action="Index" asp-route-pageNumber="@Model.PreviousPageNumber">
+                        <i class="bi bi-chevron-left"></i> Предыдущая
+                    </a>
+                </li>
+            }
+            else
+            {
+                <li class="page-item disabled">
+                    <span class="page-link"><i class="bi bi-chevron-left"></i> Предыдущая</span>
+                </li>
+            }
+
+            <li class="page-item active">
+                <span class="page-link">
+                    Страница @Model.PageNumber из @Model.TotalPages
+                </span>
+            </li>
+
+            @if (Model.HasNextPage)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-action="Index" asp-route-pageNumber="@Model.NextPageNumber">
+                        Следующая <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            }
+            else
+            {
+                <li class="page-item disabled">
+                    <span class="page-link">Следующая <i class="bi bi-chevron-right"></i></span>
+                </li>
+            }
+        </ul>
+    </nav>
+
+    <div class="text-center mt-3 text-muted">
+        <small>Всего игр: <strong>@Model.TotalCount</strong> | Показано: <strong>@Model.Items.Count</strong></small>
     </div>
 </div>

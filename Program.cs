@@ -1,36 +1,33 @@
-using Microsoft.EntityFrameworkCore;
 using GamesSharp.Data;
+using GamesSharp.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ════════════════════════════════════════════════════════════════════════════════
+// Регистрация сервисов
+// ════════════════════════════════════════════════════════════════════════════════
+
+// Основные сервисы ASP.NET Core
 builder.Services.AddControllersWithViews();
 
-// Add DbContext with SQL Server
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// База данных с автоматической миграцией и обработкой ошибок
+builder.Services.AddApplicationDbContext(builder.Configuration);
+
+// Приложение-специфичные сервисы (кеш, CORS, и т.д.)
+builder.Services.AddApplicationServices();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
+// ════════════════════════════════════════════════════════════════════════════════
+// Инициализация базы данных
+// ════════════════════════════════════════════════════════════════════════════════
 
-app.UseHttpsRedirection();
-app.UseRouting();
+await app.InitializeDatabaseAsync();
 
-app.UseAuthorization();
+// ════════════════════════════════════════════════════════════════════════════════
+// Конфигурация middleware и маршрутизация
+// ════════════════════════════════════════════════════════════════════════════════
 
-app.MapStaticAssets();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
-
+app.UseApplicationMiddleware();
 
 app.Run();

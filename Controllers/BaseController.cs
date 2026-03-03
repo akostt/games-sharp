@@ -14,8 +14,8 @@ namespace GamesSharp.Controllers
 
         protected BaseController(ApplicationDbContext context, ILogger logger)
         {
-            Context = context;
-            Logger = logger;
+            Context = context ?? throw new ArgumentNullException(nameof(context));
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -31,8 +31,8 @@ namespace GamesSharp.Controllers
         /// </summary>
         protected IActionResult NotFoundWithLogging(string entityName, int? id)
         {
-            Logger.LogWarning($"{entityName} с ID {id} не найден");
-            TempData[Constants.Parameters.ErrorMessage] = Constants.ErrorMessages.RecordNotFound;
+            Logger.LogWarning("Попытка доступа к несуществующему {EntityName} с ID: {Id}", entityName, id);
+            SetErrorMessage(Constants.ErrorMessages.RecordNotFound);
             return NotFound();
         }
 
@@ -41,6 +41,9 @@ namespace GamesSharp.Controllers
         /// </summary>
         protected void SetSuccessMessage(string message)
         {
+            if (string.IsNullOrWhiteSpace(message))
+                throw new ArgumentException("Сообщение не может быть пустым", nameof(message));
+            
             TempData[Constants.Parameters.SuccessMessage] = message;
         }
 
@@ -49,17 +52,54 @@ namespace GamesSharp.Controllers
         /// </summary>
         protected void SetErrorMessage(string message)
         {
+            if (string.IsNullOrWhiteSpace(message))
+                throw new ArgumentException("Сообщение не может быть пустым", nameof(message));
+            
             TempData[Constants.Parameters.ErrorMessage] = message;
         }
 
         /// <summary>
-        /// Логирование и возврат ошибки
+        /// Обработка и логирование исключений с более информативным сообщением
         /// </summary>
-        protected IActionResult HandleException(Exception ex, string action)
+        protected IActionResult HandleException(Exception ex, string action, string? entityName = null)
         {
-            Logger.LogError(ex, $"Ошибка при выполнении действия: {action}");
-            SetErrorMessage(Constants.ErrorMessages.UnexpectedError);
+            var errorDetails = GetErrorDetails(ex);
+            
+            Logger.LogError(ex, 
+                "Ошибка в действии {Action} контроллера {ControllerName}. {ErrorDetails}", 
+                action, 
+                GetControllerName(), 
+                errorDetails);
+
+            // Выбор сообщения в зависимости от типа ошибки
+            string errorMessage = ex switch
+            {
+                InvalidOperationException => "Операция не может быть выполнена. Проверьте данные.",
+                ArgumentException => "Некорректные входные параметры.",
+                TimeoutException => "Превышено время ожидания. Попробуйте позже.",
+                _ => Constants.ErrorMessages.UnexpectedError
+            };
+
+            SetErrorMessage(errorMessage);
             return RedirectToAction("Index");
+        }
+
+        /// <summary>
+        /// Получает информацию об ошибке для логирования
+        /// </summary>
+        private static string GetErrorDetails(Exception ex)
+        {
+            return ex.InnerException != null 
+                ? $"{ex.Message} -> {ex.InnerException.Message}" 
+                : ex.Message;
+        }
+
+        /// <summary>
+        /// Получает имя контроллера
+        /// </summary>
+        private string GetControllerName()
+        {
+            return GetType().Name.Replace("Controller", "");
         }
     }
 }

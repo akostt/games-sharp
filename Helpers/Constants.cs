@@ -23,9 +23,11 @@ namespace GamesSharp.Helpers
         {
             public const string RecordNotFound = "Запись не найдена";
             public const string InvalidId = "Некорректный идентификатор";
-            public const string DatabaseError = "Ошибка базы данных";
+            public const string DatabaseError = "Ошибка базы данных. Попробуйте позже.";
             public const string ValidationError = "Ошибка валидации данных";
-            public const string UnexpectedError = "Произошла непредвиденная ошибка";
+            public const string UnexpectedError = "Произошла непредвиденная ошибка. Пожалуйста, обратитесь в поддержку.";
+            public const string ConcurrencyError = "Запись была изменена другим пользователем. Пожалуйста, обновите страницу и попробуйте снова.";
+            public const string DeleteError = "Невозможно удалить запись. Возможно, на нее ссылаются другие записи.";
         }
 
         /// <summary>
@@ -46,6 +48,34 @@ namespace GamesSharp.Helpers
             public const string Id = "id";
             public const string ErrorMessage = "ErrorMessage";
             public const string SuccessMessage = "SuccessMessage";
+        }
+
+        /// <summary>
+        /// Валидационные константы
+        /// </summary>
+        public static class Validation
+        {
+            // Длины строк
+            public const int MaxNameLength = 100;
+            public const int MaxDescriptionLength = 1000;
+            public const int MaxCityLength = 50;
+            public const int MaxGenreLength = 50;
+
+            // Диапазоны чисел
+            public const int MinPlayers = 1;
+            public const int MaxPlayers = 100;
+            public const int MinDuration = 1;
+            public const int MaxDuration = 1000;
+            public const int MinComplexity = 1;
+            public const int MaxComplexity = 10;
+            public const int MinAge = 0;
+            public const int MaxAge = 99;
+            public const int MaxYearPublished = 2100;
+
+            // Пагинация
+            public const int DefaultPageSize = 10;
+            public const int MaxPageSize = 100;
+            public const int MinPageSize = 1;
         }
 
         /// <summary>
