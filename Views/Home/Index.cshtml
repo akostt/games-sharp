@@ -2,22 +2,52 @@
     ViewData["Title"] = "Главная";
 }
 
-<div class="text-center mb-5">
-    <h1 class="display-3 fw-bold text-gradient mb-3">
-        <i class="bi bi-controller"></i> Менеджер Игровых Сессий
-    </h1>
-    <p class="lead fs-4">Организуйте и управляйте вашими настольными игровыми сессиями с легкостью</p>
+<section class="p-3 p-md-4 mb-4 rounded-4" style="background: linear-gradient(125deg, #f5f9ff, #eef6ff 48%, #e9fff7); border: 1px solid #d4e3f5;">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+            <h1 class="display-5 fw-bold text-gradient mb-3">
+                Игровые сессии без хаоса
+            </h1>
+            <p class="lead mb-4">
+                Планируйте партии, ведите каталог игр, контролируйте участников и площадки в одном приложении.
+            </p>
+            <div class="d-flex flex-wrap gap-2">
+                <a asp-controller="GameSessions" asp-action="Create" class="btn btn-primary btn-lg">
+                    <i class="bi bi-calendar-plus"></i> Новая сессия
+                </a>
+                <a asp-controller="Games" asp-action="Create" class="btn btn-outline-primary btn-lg">
+                    <i class="bi bi-plus-circle"></i> Добавить игру
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm" style="background: #ffffffc7;">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-lightning-charge-fill text-warning"></i> Быстрый старт</h5>
+                    <ol class="mb-0 ps-3">
+                        <li class="mb-2">Добавьте игру и категорию</li>
+                        <li class="mb-2">Создайте карточки игроков</li>
+                        <li class="mb-2">Запланируйте сессию и выберите площадку</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="text-center mb-4">
+    <h2 class="fw-bold">Ключевые разделы</h2>
 </div>
 
-<div class="row g-4 mt-4">
+<div class="row g-4">
     <div class="col-md-4">
         <div class="card h-100 shadow-sm border-primary">
             <div class="card-body text-center">
                 <div class="mb-3">
                     <i class="bi bi-dice-5 text-primary" style="font-size: 3rem;"></i>
                 </div>
-                <h5 class="card-title fw-bold">Настольные игры</h5>
-                <p class="card-text">Просматривайте и управляйте вашей коллекцией настольных игр. Добавляйте новые игры, указывайте категории и издателей.</p>
+                <h5 class="card-title fw-bold">Игры</h5>
+                <p class="card-text">Полная карточка игры: состав участников, длительность, категории, издатель и оборудование.</p>
                 <a asp-controller="Games" asp-action="Index" class="btn btn-primary btn-lg">
                     <i class="bi bi-arrow-right-circle"></i> Перейти к играм
                 </a>
@@ -31,7 +61,7 @@
                     <i class="bi bi-people text-success" style="font-size: 3rem;"></i>
                 </div>
                 <h5 class="card-title fw-bold">Игроки</h5>
-                <p class="card-text">Управляйте профилями игроков и отслеживайте их игровую историю, достижения и статистику.</p>
+                <p class="card-text">Контакты, регистрация и история участия в сессиях для каждого игрока.</p>
                 <a asp-controller="Players" asp-action="Index" class="btn btn-success btn-lg">
                     <i class="bi bi-arrow-right-circle"></i> Перейти к игрокам
                 </a>
@@ -44,8 +74,8 @@
                 <div class="mb-3">
                     <i class="bi bi-calendar-event text-info" style="font-size: 3rem;"></i>
                 </div>
-                <h5 class="card-title fw-bold">Игровые сессии</h5>
-                <p class="card-text">Планируйте и организуйте ваши игровые сессии. Выбирайте место проведения и добавляйте участников.</p>
+                <h5 class="card-title fw-bold">Сессии</h5>
+                <p class="card-text">Планирование дат, статусов и состава участников. Вся активность по партиям в одном месте.</p>
                 <a asp-controller="GameSessions" asp-action="Index" class="btn btn-info btn-lg">
                     <i class="bi bi-arrow-right-circle"></i> Перейти к сессиям
                 </a>
@@ -55,21 +85,21 @@
 </div>
 
 <div class="mt-5 p-4 bg-white rounded shadow-sm">
-    <h2 class="mb-4"><i class="bi bi-star-fill text-warning"></i> Возможности системы</h2>
+    <h2 class="mb-4"><i class="bi bi-star-fill text-warning"></i> Что улучшено в системе</h2>
     <div class="row">
         <div class="col-md-6">
             <ul class="list-unstyled">
                 <li class="mb-3">
                     <i class="bi bi-check-circle-fill text-success"></i>
-                    <strong>Управление коллекцией игр</strong> - детальная информация о каждой игре
+                    <strong>Единая навигация</strong> - быстрый переход между всеми сущностями
                 </li>
                 <li class="mb-3">
                     <i class="bi bi-check-circle-fill text-success"></i>
-                    <strong>Регистрация игроков</strong> - профили с контактной информацией
+                    <strong>Уведомления об операциях</strong> - сообщения об успехе и ошибках на каждой странице
                 </li>
                 <li class="mb-3">
                     <i class="bi bi-check-circle-fill text-success"></i>
-                    <strong>Планирование сессий</strong> - удобное расписание игр
+                    <strong>Повышенная стабильность</strong> - атомарные операции изменения данных
                 </li>
             </ul>
         </div>
@@ -77,28 +107,27 @@
             <ul class="list-unstyled">
                 <li class="mb-3">
                     <i class="bi bi-check-circle-fill text-success"></i>
-                    <strong>Отслеживание результатов</strong> - статистика и достижения
+                    <strong>Кроссплатформенный запуск</strong> - SQLite по умолчанию для локальной работы
                 </li>
                 <li class="mb-3">
                     <i class="bi bi-check-circle-fill text-success"></i>
-                    <strong>История игроков</strong> - все участия в сессиях
+                    <strong>Согласованный стиль UI</strong> - адаптивная тема для десктопа и мобильных
                 </li>
                 <li class="mb-3">
                     <i class="bi bi-check-circle-fill text-success"></i>
-                    <strong>Управление местами</strong> - база игротек и площадок
+                    <strong>Чище код</strong> - устранены лишние/дублирующиеся участки логики
                 </li>
             </ul>
         </div>
     </div>
 </div>
 
-<div class="mt-5 p-4 pb-5 bg-primary bg-gradient text-white rounded shadow-sm text-center">
+<div class="mt-5 p-4 pb-5 text-white rounded shadow-sm text-center" style="background: linear-gradient(125deg, #143d7a, #1f69d3 52%, #0e8f83);">
     <h3 class="mb-3"><i class="bi bi-info-circle"></i> О проекте</h3>
     <p class="lead">
-        Это web-приложение разработано для организации и проведения игровых сессий по настольным играм.
-        Система позволяет эффективно управлять базой игр, регистрировать участников и планировать мероприятия.
+        Веб-приложение для организации настольных игровых встреч: от ведения каталога игр до планирования конкретных сессий.
     </p>
     <p class="mb-0">
-        <small>Курсовой проект | ASP.NET Core MVC | Entity Framework Core | Bootstrap 5</small>
+        <small>ASP.NET Core MVC | Entity Framework Core | Bootstrap 5</small>
     </p>
 </div>

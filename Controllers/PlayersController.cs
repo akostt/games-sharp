@@ -2,44 +2,59 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GamesSharp.Data;
 using GamesSharp.Models;
+using GamesSharp.Helpers;
 
 namespace GamesSharp.Controllers
 {
-    public class PlayersController : Controller
+    public class PlayersController : BaseController
     {
-        private readonly ApplicationDbContext _context;
-
-        public PlayersController(ApplicationDbContext context)
+        public PlayersController(ApplicationDbContext context, ILogger<PlayersController> logger)
+            : base(context, logger)
         {
-            _context = context;
         }
 
         // GET: Players
         public async Task<IActionResult> Index()
         {
-            var players = await _context.Players.ToListAsync();
-            return View(players);
+            try
+            {
+                var players = await Context.Players
+                    .AsNoTracking()
+                    .OrderBy(p => p.Name)
+                    .ToListAsync();
+
+                return View(players);
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(Index));
+            }
         }
 
         // GET: Players/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (!IsValidId(id))
+                return NotFoundWithLogging("Игрок", id);
 
-            var player = await _context.Players
-                .Include(p => p.SessionPlayers)
-                    .ThenInclude(sp => sp.GameSession)
-                        .ThenInclude(gs => gs.Game)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (player == null)
+            try
             {
-                return NotFound();
-            }
+                var player = await Context.Players
+                    .Include(p => p.SessionPlayers)
+                        .ThenInclude(sp => sp.GameSession)
+                            .ThenInclude(gs => gs.Game)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(m => m.Id == id);
 
-            return View(player);
+                if (player == null)
+                    return NotFoundWithLogging("Игрок", id);
+
+                return View(player);
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(Details));
+            }
         }
 
         // GET: Players/Create
@@ -55,28 +70,42 @@ namespace GamesSharp.Controllers
         {
             if (ModelState.IsValid)
             {
-                player.RegisteredDate = DateTime.Now;
-                _context.Add(player);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    player.RegisteredDate = DateTime.Now;
+                    Context.Players.Add(player);
+                    await Context.SaveChangesAsync();
+
+                    SetSuccessMessage(Constants.SuccessMessages.RecordCreated);
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    return HandleException(ex, nameof(Create));
+                }
             }
+
             return View(player);
         }
 
         // GET: Players/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (!IsValidId(id))
+                return NotFoundWithLogging("Игрок", id);
 
-            var player = await _context.Players.FindAsync(id);
-            if (player == null)
+            try
             {
-                return NotFound();
+                var player = await Context.Players.FindAsync(id);
+                if (player == null)
+                    return NotFoundWithLogging("Игрок", id);
+
+                return View(player);
             }
-            return View(player);
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(Edit));
+            }
         }
 
         // POST: Players/Edit/5
@@ -86,48 +115,56 @@ namespace GamesSharp.Controllers
         {
             if (id != player.Id)
             {
-                return NotFound();
+                return NotFoundWithLogging("Игрок", id);
             }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(player);
-                    await _context.SaveChangesAsync();
+                    Context.Players.Update(player);
+                    await Context.SaveChangesAsync();
+
+                    SetSuccessMessage(Constants.SuccessMessages.RecordUpdated);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!PlayerExists(player.Id))
+                    if (!await PlayerExistsAsync(player.Id))
                     {
-                        return NotFound();
+                        return NotFoundWithLogging("Игрок", player.Id);
                     }
-                    else
-                    {
-                        throw;
-                    }
+
+                    SetErrorMessage(Constants.ErrorMessages.ConcurrencyError);
+                    return View(player);
                 }
+
                 return RedirectToAction(nameof(Index));
             }
+
             return View(player);
         }
 
         // GET: Players/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (!IsValidId(id))
+                return NotFoundWithLogging("Игрок", id);
 
-            var player = await _context.Players
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (player == null)
+            try
             {
-                return NotFound();
-            }
+                var player = await Context.Players
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(m => m.Id == id);
 
-            return View(player);
+                if (player == null)
+                    return NotFoundWithLogging("Игрок", id);
+
+                return View(player);
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(Delete));
+            }
         }
 
         // POST: Players/Delete/5
@@ -135,19 +172,27 @@ namespace GamesSharp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var player = await _context.Players.FindAsync(id);
-            if (player != null)
+            try
             {
-                _context.Players.Remove(player);
-            }
+                var player = await Context.Players.FindAsync(id);
+                if (player == null)
+                    return NotFoundWithLogging("Игрок", id);
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+                Context.Players.Remove(player);
+                await Context.SaveChangesAsync();
+
+                SetSuccessMessage(Constants.SuccessMessages.RecordDeleted);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(DeleteConfirmed));
+            }
         }
 
-        private bool PlayerExists(int id)
+        private Task<bool> PlayerExistsAsync(int id)
         {
-            return _context.Players.Any(e => e.Id == id);
+            return Context.Players.AnyAsync(e => e.Id == id);
         }
     }
 }

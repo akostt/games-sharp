@@ -3,217 +3,205 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using GamesSharp.Data;
 using GamesSharp.Models;
+using GamesSharp.Helpers;
 
 namespace GamesSharp.Controllers
 {
-    public class GameSessionsController : Controller
+    public class GameSessionsController : BaseController
     {
-        private readonly ApplicationDbContext _context;
-
-        public GameSessionsController(ApplicationDbContext context)
+        public GameSessionsController(ApplicationDbContext context, ILogger<GameSessionsController> logger)
+            : base(context, logger)
         {
-            _context = context;
         }
 
         // GET: GameSessions
         public async Task<IActionResult> Index()
         {
-            var gameSessions = await _context.GameSessions
-                .Include(g => g.Game)
-                .Include(g => g.Venue)
-                .Include(g => g.SessionPlayers)
-                    .ThenInclude(sp => sp.Player)
-                .OrderByDescending(g => g.ScheduledDate)
-                .ToListAsync();
-            return View(gameSessions);
+            try
+            {
+                var gameSessions = await Context.GameSessions
+                    .Include(g => g.Game)
+                    .Include(g => g.Venue)
+                    .Include(g => g.SessionPlayers)
+                        .ThenInclude(sp => sp.Player)
+                    .AsNoTracking()
+                    .OrderByDescending(g => g.ScheduledDate)
+                    .ToListAsync();
+
+                return View(gameSessions);
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(Index));
+            }
         }
 
         // GET: GameSessions/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (!IsValidId(id))
+                return NotFoundWithLogging("Игровая сессия", id);
 
-            var gameSession = await _context.GameSessions
-                .Include(g => g.Game)
-                .Include(g => g.Venue)
-                .Include(g => g.SessionPlayers)
-                    .ThenInclude(sp => sp.Player)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (gameSession == null)
+            try
             {
-                return NotFound();
-            }
+                var gameSession = await Context.GameSessions
+                    .Include(g => g.Game)
+                    .Include(g => g.Venue)
+                    .Include(g => g.SessionPlayers)
+                        .ThenInclude(sp => sp.Player)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(m => m.Id == id);
 
-            return View(gameSession);
+                if (gameSession == null)
+                    return NotFoundWithLogging("Игровая сессия", id);
+
+                return View(gameSession);
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(Details));
+            }
         }
 
         // GET: GameSessions/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["GameId"] = new SelectList(_context.Games, "Id", "Name");
-            ViewData["VenueId"] = new SelectList(_context.Venues, "Id", "Name");
-            ViewData["Players"] = new MultiSelectList(_context.Players, "Id", "Name");
-            return View();
+            try
+            {
+                await PopulateSelectionDataAsync();
+                return View();
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(Create));
+            }
         }
 
         // POST: GameSessions/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,GameId,VenueId,ScheduledDate,ActualStartTime,ActualEndTime,Notes,Organizer,MaxParticipants")] GameSession gameSession, int[] selectedPlayers)
+        public async Task<IActionResult> Create([Bind("Id,GameId,VenueId,ScheduledDate,ActualStartTime,ActualEndTime,Notes,Organizer,MaxParticipants")] GameSession gameSession, int[]? selectedPlayers)
         {
             if (ModelState.IsValid)
             {
-                if (gameSession.ActualStartTime.HasValue)
+                try
                 {
-                    gameSession.ActualStartTime = gameSession.ScheduledDate.Date
-                        .Add(gameSession.ActualStartTime.Value.TimeOfDay);
-                }
+                    NormalizeSessionTimes(gameSession);
+                    gameSession.Status = Constants.SessionStatus.Scheduled;
 
-                if (gameSession.ActualEndTime.HasValue)
+                    Context.GameSessions.Add(gameSession);
+                    await Context.SaveChangesAsync();
+
+                    await ReplaceSessionPlayersAsync(gameSession.Id, selectedPlayers);
+                    await Context.SaveChangesAsync();
+
+                    SetSuccessMessage(Constants.SuccessMessages.RecordCreated);
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
                 {
-                    gameSession.ActualEndTime = gameSession.ScheduledDate.Date
-                        .Add(gameSession.ActualEndTime.Value.TimeOfDay);
+                    return HandleException(ex, nameof(Create));
                 }
-
-                gameSession.Status = "Запланирована";
-                _context.Add(gameSession);
-                await _context.SaveChangesAsync();
-
-                // Add selected players to the session
-                if (selectedPlayers != null && selectedPlayers.Length > 0)
-                {
-                    foreach (var playerId in selectedPlayers)
-                    {
-                        var sessionPlayer = new SessionPlayer
-                        {
-                            GameSessionId = gameSession.Id,
-                            PlayerId = playerId
-                        };
-                        _context.SessionPlayers.Add(sessionPlayer);
-                    }
-                    await _context.SaveChangesAsync();
-                }
-
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["GameId"] = new SelectList(_context.Games, "Id", "Name", gameSession.GameId);
-            ViewData["VenueId"] = new SelectList(_context.Venues, "Id", "Name", gameSession.VenueId);
-            ViewData["Players"] = new MultiSelectList(_context.Players, "Id", "Name", selectedPlayers);
+
+            await PopulateSelectionDataAsync(gameSession.GameId, gameSession.VenueId, selectedPlayers);
             return View(gameSession);
         }
 
         // GET: GameSessions/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (!IsValidId(id))
+                return NotFoundWithLogging("Игровая сессия", id);
 
-            var gameSession = await _context.GameSessions
-                .Include(g => g.SessionPlayers)
-                .FirstOrDefaultAsync(g => g.Id == id);
-            if (gameSession == null)
+            try
             {
-                return NotFound();
+                var gameSession = await Context.GameSessions
+                    .Include(g => g.SessionPlayers)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(g => g.Id == id);
+
+                if (gameSession == null)
+                    return NotFoundWithLogging("Игровая сессия", id);
+
+                await PopulateSelectionDataAsync(
+                    gameSession.GameId,
+                    gameSession.VenueId,
+                    gameSession.SessionPlayers.Select(sp => sp.PlayerId));
+
+                return View(gameSession);
             }
-            ViewData["GameId"] = new SelectList(_context.Games, "Id", "Name", gameSession.GameId);
-            ViewData["VenueId"] = new SelectList(_context.Venues, "Id", "Name", gameSession.VenueId);
-            ViewData["Players"] = new MultiSelectList(_context.Players, "Id", "Name", 
-                gameSession.SessionPlayers.Select(sp => sp.PlayerId).ToArray());
-            return View(gameSession);
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(Edit));
+            }
         }
 
         // POST: GameSessions/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,GameId,VenueId,ScheduledDate,ActualStartTime,ActualEndTime,Status,Notes,Organizer,MaxParticipants")] GameSession gameSession, int[] selectedPlayers)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,GameId,VenueId,ScheduledDate,ActualStartTime,ActualEndTime,Status,Notes,Organizer,MaxParticipants")] GameSession gameSession, int[]? selectedPlayers)
         {
             if (id != gameSession.Id)
             {
-                return NotFound();
+                return NotFoundWithLogging("Игровая сессия", id);
             }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    if (gameSession.ActualStartTime.HasValue)
-                    {
-                        gameSession.ActualStartTime = gameSession.ScheduledDate.Date
-                            .Add(gameSession.ActualStartTime.Value.TimeOfDay);
-                    }
+                    NormalizeSessionTimes(gameSession);
 
-                    if (gameSession.ActualEndTime.HasValue)
-                    {
-                        gameSession.ActualEndTime = gameSession.ScheduledDate.Date
-                            .Add(gameSession.ActualEndTime.Value.TimeOfDay);
-                    }
+                    Context.GameSessions.Update(gameSession);
+                    await ReplaceSessionPlayersAsync(gameSession.Id, selectedPlayers);
+                    await Context.SaveChangesAsync();
 
-                    _context.Update(gameSession);
-                    
-                    // Update session players
-                    var existingPlayers = await _context.SessionPlayers
-                        .Where(sp => sp.GameSessionId == id)
-                        .ToListAsync();
-                    _context.SessionPlayers.RemoveRange(existingPlayers);
-                    
-                    if (selectedPlayers != null && selectedPlayers.Length > 0)
-                    {
-                        foreach (var playerId in selectedPlayers)
-                        {
-                            var sessionPlayer = new SessionPlayer
-                            {
-                                GameSessionId = gameSession.Id,
-                                PlayerId = playerId
-                            };
-                            _context.SessionPlayers.Add(sessionPlayer);
-                        }
-                    }
-                    
-                    await _context.SaveChangesAsync();
+                    SetSuccessMessage(Constants.SuccessMessages.RecordUpdated);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!GameSessionExists(gameSession.Id))
+                    if (!await GameSessionExistsAsync(gameSession.Id))
                     {
-                        return NotFound();
+                        return NotFoundWithLogging("Игровая сессия", gameSession.Id);
                     }
-                    else
-                    {
-                        throw;
-                    }
+
+                    SetErrorMessage(Constants.ErrorMessages.ConcurrencyError);
+                    await PopulateSelectionDataAsync(gameSession.GameId, gameSession.VenueId, selectedPlayers);
+                    return View(gameSession);
                 }
+
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["GameId"] = new SelectList(_context.Games, "Id", "Name", gameSession.GameId);
-            ViewData["VenueId"] = new SelectList(_context.Venues, "Id", "Name", gameSession.VenueId);
-            ViewData["Players"] = new MultiSelectList(_context.Players, "Id", "Name", selectedPlayers);
+
+            await PopulateSelectionDataAsync(gameSession.GameId, gameSession.VenueId, selectedPlayers);
             return View(gameSession);
         }
 
         // GET: GameSessions/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (!IsValidId(id))
+                return NotFoundWithLogging("Игровая сессия", id);
 
-            var gameSession = await _context.GameSessions
-                .Include(g => g.Game)
-                .Include(g => g.SessionPlayers)
-                    .ThenInclude(sp => sp.Player)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (gameSession == null)
+            try
             {
-                return NotFound();
-            }
+                var gameSession = await Context.GameSessions
+                    .Include(g => g.Game)
+                    .Include(g => g.SessionPlayers)
+                        .ThenInclude(sp => sp.Player)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(m => m.Id == id);
 
-            return View(gameSession);
+                if (gameSession == null)
+                    return NotFoundWithLogging("Игровая сессия", id);
+
+                return View(gameSession);
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(Delete));
+            }
         }
 
         // POST: GameSessions/Delete/5
@@ -221,19 +209,86 @@ namespace GamesSharp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var gameSession = await _context.GameSessions.FindAsync(id);
-            if (gameSession != null)
+            try
             {
-                _context.GameSessions.Remove(gameSession);
-            }
+                var gameSession = await Context.GameSessions.FindAsync(id);
+                if (gameSession == null)
+                    return NotFoundWithLogging("Игровая сессия", id);
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+                Context.GameSessions.Remove(gameSession);
+                await Context.SaveChangesAsync();
+
+                SetSuccessMessage(Constants.SuccessMessages.RecordDeleted);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(DeleteConfirmed));
+            }
         }
 
-        private bool GameSessionExists(int id)
+        private async Task PopulateSelectionDataAsync(
+            int? selectedGameId = null,
+            int? selectedVenueId = null,
+            IEnumerable<int>? selectedPlayers = null)
         {
-            return _context.GameSessions.Any(e => e.Id == id);
+            var games = await Context.Games
+                .AsNoTracking()
+                .OrderBy(g => g.Name)
+                .ToListAsync();
+
+            var venues = await Context.Venues
+                .AsNoTracking()
+                .OrderBy(v => v.Name)
+                .ToListAsync();
+
+            var players = await Context.Players
+                .AsNoTracking()
+                .OrderBy(p => p.Name)
+                .ToListAsync();
+
+            ViewData["GameId"] = new SelectList(games, "Id", "Name", selectedGameId);
+            ViewData["VenueId"] = new SelectList(venues, "Id", "Name", selectedVenueId);
+            ViewData["Players"] = new MultiSelectList(players, "Id", "Name", selectedPlayers ?? Enumerable.Empty<int>());
+        }
+
+        private static void NormalizeSessionTimes(GameSession gameSession)
+        {
+            if (gameSession.ActualStartTime.HasValue)
+            {
+                gameSession.ActualStartTime = gameSession.ScheduledDate.Date
+                    .Add(gameSession.ActualStartTime.Value.TimeOfDay);
+            }
+
+            if (gameSession.ActualEndTime.HasValue)
+            {
+                gameSession.ActualEndTime = gameSession.ScheduledDate.Date
+                    .Add(gameSession.ActualEndTime.Value.TimeOfDay);
+            }
+        }
+
+        private async Task ReplaceSessionPlayersAsync(int gameSessionId, IEnumerable<int>? selectedPlayers)
+        {
+            var existingPlayers = await Context.SessionPlayers
+                .Where(sp => sp.GameSessionId == gameSessionId)
+                .ToListAsync();
+
+            Context.SessionPlayers.RemoveRange(existingPlayers);
+
+            var uniquePlayers = (selectedPlayers ?? Enumerable.Empty<int>()).Distinct();
+            foreach (var playerId in uniquePlayers)
+            {
+                Context.SessionPlayers.Add(new SessionPlayer
+                {
+                    GameSessionId = gameSessionId,
+                    PlayerId = playerId
+                });
+            }
+        }
+
+        private Task<bool> GameSessionExistsAsync(int id)
+        {
+            return Context.GameSessions.AnyAsync(e => e.Id == id);
         }
     }
 }

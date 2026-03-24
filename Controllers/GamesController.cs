@@ -108,6 +108,8 @@ namespace GamesSharp.Controllers
             {
                 try
                 {
+                    await using var transaction = await Context.Database.BeginTransactionAsync();
+
                     Context.Add(game);
                     await Context.SaveChangesAsync();
 
@@ -116,6 +118,9 @@ namespace GamesSharp.Controllers
 
                     // Добавление оборудования
                     await AddGameEquipmentsAsync(game.Id, selectedEquipment, equipmentQuantities);
+
+                    await Context.SaveChangesAsync();
+                    await transaction.CommitAsync();
                     
                     Logger.LogInformation("Создана новая игра: {GameName} (ID: {GameId})", game.Name, game.Id);
                     SetSuccessMessage(Constants.SuccessMessages.RecordCreated);
@@ -187,6 +192,8 @@ namespace GamesSharp.Controllers
             {
                 try
                 {
+                    await using var transaction = await Context.Database.BeginTransactionAsync();
+
                     Context.Update(game);
                     await Context.SaveChangesAsync();
 
@@ -195,6 +202,9 @@ namespace GamesSharp.Controllers
 
                     // Обновление оборудования
                     await UpdateGameEquipmentsAsync(game.Id, selectedEquipment, equipmentQuantities);
+
+                    await Context.SaveChangesAsync();
+                    await transaction.CommitAsync();
                     
                     Logger.LogInformation("Обновлена игра: {GameName} (ID: {GameId})", game.Name, game.Id);
                     SetSuccessMessage(Constants.SuccessMessages.RecordUpdated);
@@ -340,10 +350,10 @@ namespace GamesSharp.Controllers
             ViewBag.EquipmentQuantities = equipmentQuantities;
         }
 
-        private async Task AddGameCategoriesAsync(int gameId, List<int>? selectedCategoryIds)
+        private Task AddGameCategoriesAsync(int gameId, List<int>? selectedCategoryIds)
         {
             if (selectedCategoryIds == null || !selectedCategoryIds.Any())
-                return;
+            return Task.CompletedTask;
 
             var categoryAssignments = selectedCategoryIds
                 .Distinct()
@@ -355,7 +365,7 @@ namespace GamesSharp.Controllers
                 .ToList();
 
             Context.GameCategoryAssignments.AddRange(categoryAssignments);
-            await Context.SaveChangesAsync();
+            return Task.CompletedTask;
         }
 
         private async Task UpdateGameCategoriesAsync(int gameId, List<int>? selectedCategoryIds)
@@ -368,10 +378,10 @@ namespace GamesSharp.Controllers
             await AddGameCategoriesAsync(gameId, selectedCategoryIds);
         }
 
-        private async Task AddGameEquipmentsAsync(int gameId, List<int>? selectedEquipment, Dictionary<int, int>? equipmentQuantities)
+        private Task AddGameEquipmentsAsync(int gameId, List<int>? selectedEquipment, Dictionary<int, int>? equipmentQuantities)
         {
             if (selectedEquipment == null || !selectedEquipment.Any())
-                return;
+            return Task.CompletedTask;
 
             var gameEquipments = selectedEquipment
                 .Select(equipmentId => new GameEquipment
@@ -385,7 +395,7 @@ namespace GamesSharp.Controllers
                 .ToList();
 
             Context.GameEquipments.AddRange(gameEquipments);
-            await Context.SaveChangesAsync();
+            return Task.CompletedTask;
         }
 
         private async Task UpdateGameEquipmentsAsync(int gameId, List<int>? selectedEquipment, Dictionary<int, int>? equipmentQuantities)

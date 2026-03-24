@@ -9,19 +9,20 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/GamesSharp.styles.css" asp-append-version="true" />
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
-            <div class="container-fluid">
-                <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-joystick"></i> Игровые Сессии
+<body class="app-shell">
+    <header class="app-header">
+        <nav class="navbar navbar-expand-xl navbar-dark app-navbar shadow-sm">
+            <div class="container-fluid app-navbar-inner">
+                <a class="navbar-brand fw-bold d-flex align-items-center gap-2" asp-area="" asp-controller="Home" asp-action="Index">
+                    <span class="brand-badge"><i class="bi bi-joystick"></i></span>
+                    <span>Game Hub</span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Переключить навигацию">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="navbar-collapse collapse d-xl-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1 app-nav-gap">
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
                                 <i class="bi bi-house-door"></i> Главная
@@ -67,19 +68,35 @@
             </div>
         </nav>
     </header>
-    <div class="container-fluid px-4 py-4">
-        <main role="main" class="pb-3">
+    <div class="container-fluid px-3 px-md-4 py-4">
+        @if (TempData[GamesSharp.Helpers.Constants.Parameters.SuccessMessage] is string successMessage)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill"></i> @successMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        @if (TempData[GamesSharp.Helpers.Constants.Parameters.ErrorMessage] is string errorMessage)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i> @errorMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <main role="main" class="pb-3 app-main-surface">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer bg-light mt-5 py-4">
+    <footer class="border-top footer mt-5 py-4 app-footer">
         <div class="container text-center">
             <span class="text-muted">
-                <i class="bi bi-c-circle"></i> 2026 - Система управления игровыми сессиями
+                <i class="bi bi-c-circle"></i> 2026 - Game Hub
             </span>
             <br>
-            <small class="text-muted">Курсовой проект | Web-приложение для проведения настольных игр</small>
+            <small class="text-muted">Управление коллекцией настольных игр и игровыми сессиями</small>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

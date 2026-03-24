@@ -37,7 +37,7 @@ namespace GamesSharp.Models
             if (pageNumber < 1) pageNumber = 1;
             if (pageSize < 1 || pageSize > 100) pageSize = 10;
 
-            var totalCount = source.Count();
+            var totalCount = await source.CountAsync();
             var items = await source
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)

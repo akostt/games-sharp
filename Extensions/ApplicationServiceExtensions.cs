@@ -18,17 +18,6 @@ namespace GamesSharp.Extensions
             // Регистрация бизнес-сервисов
             services.AddScoped<IReferenceDataService, ReferenceDataService>();
 
-            // Добавить CORS поддержку если нужна API
-            services.AddCors(options =>
-            {
-                options.AddPolicy("AllowLocalhost", builder =>
-                {
-                    builder.WithOrigins("http://localhost:3000", "http://localhost:5000")
-                           .AllowAnyMethod()
-                           .AllowAnyHeader();
-                });
-            });
-
             return services;
         }
 

@@ -19,17 +19,20 @@
             <table class="table table-hover">
                 <thead class="table-dark">
                     <tr>
-                        <th>@Html.DisplayNameFor(model => model.Items.FirstOrDefault().Name)</th>
+                        <th>Название</th>
                         <th>Категории</th>
                         <th>Издатель</th>
-                        <th>@Html.DisplayNameFor(model => model.Items.FirstOrDefault().MinPlayers)</th>
-                        <th>@Html.DisplayNameFor(model => model.Items.FirstOrDefault().MaxPlayers)</th>
-                        <th>@Html.DisplayNameFor(model => model.Items.FirstOrDefault().AverageDuration)</th>
+                        <th>Мин. игроков</th>
+                        <th>Макс. игроков</th>
+                        <th>Длительность</th>
                         <th>Действия</th>
                     </tr>
                 </thead>
                 <tbody>
-            @foreach (var item in Model.Items) {
+            @if (Model.Items.Any())
+            {
+                @foreach (var item in Model.Items)
+                {
                     <tr>
                         <td>
                             <strong>@Html.DisplayFor(modelItem => item.Name)</strong>
@@ -69,6 +72,16 @@
                             </div>
                         </td>
                     </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="7" class="text-center py-4">
+                        <i class="bi bi-info-circle"></i> Игры пока не добавлены.
+                        <a asp-action="Create" class="ms-1">Создать первую игру</a>
+                    </td>
+                </tr>
             }
                 </tbody>
             </table>

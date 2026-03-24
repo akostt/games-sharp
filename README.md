@@ -19,7 +19,8 @@
 
 - ASP.NET Core MVC 10.0
 - Entity Framework Core 10.0
-- SQL Server LocalDB
+- SQLite (по умолчанию, кроссплатформенно)
+- SQL Server (опционально через конфигурацию)
 - JavaScript (ES6+)
 
 ## 🚀 Быстрый старт
@@ -32,13 +33,26 @@ cd games-sharp
 # 2. Восстановить пакеты
 dotnet restore
 
-# 3. Применить миграции
+# 3. Применить миграции (для SQLite по умолчанию)
 dotnet ef database update
 
 # 4. Запустить приложение
 dotnet run
 ```
 Открыть в браузере: http://localhost:5166
+
+### Выбор провайдера БД
+
+- По умолчанию используется SQLite (файл БД создается локально).
+- Чтобы использовать SQL Server, установите в appsettings.json:
+
+```json
+"Database": {
+	"Provider": "sqlserver"
+}
+```
+
+и настройте строку подключения SqlServerConnection.
 
 ## 🗂️ Структура проекта (кратко)
 
