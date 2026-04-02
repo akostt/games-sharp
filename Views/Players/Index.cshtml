@@ -9,9 +9,14 @@
         <h1 class="display-4">
             <i class="bi bi-people"></i> Игроки
         </h1>
-        <a asp-action="Create" class="btn btn-success btn-lg">
-            <i class="bi bi-person-plus"></i> Добавить игрока
-        </a>
+        <div class="d-flex gap-2">
+            <a asp-action="ExportToExcel" class="btn btn-outline-success btn-lg">
+                <i class="bi bi-file-earmark-excel"></i> Экспорт в Excel
+            </a>
+            <a asp-action="Create" class="btn btn-success btn-lg">
+                <i class="bi bi-person-plus"></i> Добавить игрока
+            </a>
+        </div>
     </div>
 
     <div class="card shadow-sm">

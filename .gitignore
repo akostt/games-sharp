@@ -61,6 +61,20 @@ nunit-*.xml
 # SQL Server files
 *.bak
 
+# SQLite database files
+*.db
+*.db-shm
+*.db-wal
+
+# Generated Excel exports
+App_Data/Exports/
+
+# draw.io backup/temp files
+*.drawio.bkp
+*.bkp
+.$*.drawio
+.$*.drawio.bkp
+
 # User-specific files
 *.rsuser
 *.suo

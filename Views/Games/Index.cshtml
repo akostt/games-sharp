@@ -9,9 +9,14 @@
         <h1 class="display-4">
             <i class="bi bi-dice-5"></i> Настольные игры
         </h1>
-        <a asp-action="Create" class="btn btn-primary btn-lg">
-            <i class="bi bi-plus-circle"></i> Добавить игру
-        </a>
+        <div class="d-flex gap-2">
+            <a asp-action="ExportToExcel" class="btn btn-outline-success btn-lg">
+                <i class="bi bi-file-earmark-excel"></i> Экспорт в Excel
+            </a>
+            <a asp-action="Create" class="btn btn-primary btn-lg">
+                <i class="bi bi-plus-circle"></i> Добавить игру
+            </a>
+        </div>
     </div>
 
     <div class="card shadow-sm">

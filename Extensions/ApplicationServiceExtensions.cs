@@ -17,6 +17,7 @@ namespace GamesSharp.Extensions
 
             // Регистрация бизнес-сервисов
             services.AddScoped<IReferenceDataService, ReferenceDataService>();
+            services.AddScoped<IExcelExportService, ExcelExportService>();
 
             return services;
         }

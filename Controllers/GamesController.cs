@@ -11,14 +11,17 @@ namespace GamesSharp.Controllers
     public class GamesController : BaseController
     {
         private readonly IReferenceDataService _referenceDataService;
+        private readonly IExcelExportService _excelExportService;
 
         public GamesController(
             ApplicationDbContext context, 
             ILogger<GamesController> logger,
-            IReferenceDataService referenceDataService)
+            IReferenceDataService referenceDataService,
+            IExcelExportService excelExportService)
             : base(context, logger)
         {
             _referenceDataService = referenceDataService ?? throw new ArgumentNullException(nameof(referenceDataService));
+            _excelExportService = excelExportService ?? throw new ArgumentNullException(nameof(excelExportService));
         }
 
         // GET: Games
@@ -261,6 +264,31 @@ namespace GamesSharp.Controllers
             catch (Exception ex)
             {
                 return HandleException(ex, nameof(Delete));
+            }
+        }
+
+        // GET: Games/ExportToExcel
+        [HttpGet]
+        public async Task<IActionResult> ExportToExcel(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var games = await Context.Games
+                    .Include(g => g.GameCategoryAssignments)
+                        .ThenInclude(gca => gca.GameCategory)
+                    .Include(g => g.Publisher)
+                    .AsNoTracking()
+                    .OrderBy(g => g.Name)
+                    .ToListAsync(cancellationToken);
+
+                var exportResult = await _excelExportService.ExportGamesAsync(games, cancellationToken);
+
+                Logger.LogInformation("Сформирован экспорт игр в Excel. Записей: {Count}", games.Count);
+                return PhysicalFile(exportResult.StoredFilePath, exportResult.ContentType, exportResult.DownloadFileName);
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(ExportToExcel));
             }
         }
 

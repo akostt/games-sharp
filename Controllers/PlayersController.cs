@@ -3,14 +3,21 @@ using Microsoft.EntityFrameworkCore;
 using GamesSharp.Data;
 using GamesSharp.Models;
 using GamesSharp.Helpers;
+using GamesSharp.Services;
 
 namespace GamesSharp.Controllers
 {
     public class PlayersController : BaseController
     {
-        public PlayersController(ApplicationDbContext context, ILogger<PlayersController> logger)
+        private readonly IExcelExportService _excelExportService;
+
+        public PlayersController(
+            ApplicationDbContext context,
+            ILogger<PlayersController> logger,
+            IExcelExportService excelExportService)
             : base(context, logger)
         {
+            _excelExportService = excelExportService ?? throw new ArgumentNullException(nameof(excelExportService));
         }
 
         // GET: Players
@@ -164,6 +171,28 @@ namespace GamesSharp.Controllers
             catch (Exception ex)
             {
                 return HandleException(ex, nameof(Delete));
+            }
+        }
+
+        // GET: Players/ExportToExcel
+        [HttpGet]
+        public async Task<IActionResult> ExportToExcel(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var players = await Context.Players
+                    .AsNoTracking()
+                    .OrderBy(p => p.Name)
+                    .ToListAsync(cancellationToken);
+
+                var exportResult = await _excelExportService.ExportPlayersAsync(players, cancellationToken);
+
+                Logger.LogInformation("Сформирован экспорт игроков в Excel. Записей: {Count}", players.Count);
+                return PhysicalFile(exportResult.StoredFilePath, exportResult.ContentType, exportResult.DownloadFileName);
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(ExportToExcel));
             }
         }
 
