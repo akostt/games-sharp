@@ -36,7 +36,16 @@ namespace GamesSharp.Models
         [StringLength(500, ErrorMessage = "Описание не должно превышать 500 символов")]
         public string? Description { get; set; }
 
+        [Display(Name = "Широта")]
+        [Range(-90, 90, ErrorMessage = "Широта должна быть в диапазоне от -90 до 90")]
+        public double? Latitude { get; set; }
+
+        [Display(Name = "Долгота")]
+        [Range(-180, 180, ErrorMessage = "Долгота должна быть в диапазоне от -180 до 180")]
+        public double? Longitude { get; set; }
+
         // Navigation property
         public ICollection<GameSession> GameSessions { get; set; } = new List<GameSession>();
+        public ICollection<VenueEquipment> VenueEquipments { get; set; } = new List<VenueEquipment>();
     }
 }

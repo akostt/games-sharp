@@ -57,7 +57,7 @@ namespace GamesSharp.Controllers
         // POST: Equipments/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Type,Quantity,Description")] Equipment equipment)
+        public async Task<IActionResult> Create([Bind("Id,Name,Type,Description")] Equipment equipment)
         {
             if (ModelState.IsValid)
             {
@@ -103,7 +103,7 @@ namespace GamesSharp.Controllers
         // POST: Equipments/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Type,Quantity,Description")] Equipment equipment)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Type,Description")] Equipment equipment)
         {
             if (id != equipment.Id)
                 return NotFoundWithLogging("Оборудование", id);

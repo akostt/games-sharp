@@ -24,6 +24,8 @@
                         <th>@Html.DisplayNameFor(model => model.Capacity)</th>
                         <th>@Html.DisplayNameFor(model => model.Phone)</th>
                         <th>@Html.DisplayNameFor(model => model.RentalCostPerHour)</th>
+                        <th>Инвентарь</th>
+                        <th>Карта</th>
                         <th>Сессий</th>
                         <th>Действия</th>
                     </tr>
@@ -36,6 +38,25 @@
                         <td><span class="badge bg-info">@item.Capacity</span></td>
                         <td>@(string.IsNullOrWhiteSpace(item.Phone) ? "-" : item.Phone)</td>
                         <td>@(item.RentalCostPerHour.HasValue ? item.RentalCostPerHour.Value.ToString("0") + " ₽" : "-")</td>
+                        <td>
+                            <span class="badge bg-dark">@item.VenueEquipments.Count</span>
+                        </td>
+                        <td>
+                            @if (item.Latitude.HasValue && item.Longitude.HasValue)
+                            {
+                                <a href="https://yandex.ru/maps/?pt=@item.Longitude.Value.ToString(System.Globalization.CultureInfo.InvariantCulture),@item.Latitude.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)&z=14&l=map"
+                                   target="_blank"
+                                   rel="noopener"
+                                   class="btn btn-sm btn-outline-primary"
+                                   title="Открыть на карте">
+                                    <i class="bi bi-map"></i>
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="text-muted">-</span>
+                            }
+                        </td>
                         <td><span class="badge bg-secondary">@item.GameSessions.Count</span></td>
                         <td>
                             <div class="btn-group" role="group">
@@ -57,6 +78,16 @@
         </div>
     </div>
 
+    <div class="card shadow-sm mt-4">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-map"></i> Карта площадок</h5>
+            <small class="text-muted">Отмечены точки с заполненными координатами</small>
+        </div>
+        <div class="card-body">
+            <div id="venuesMap" style="height: 380px; border-radius: 0.5rem;"></div>
+        </div>
+    </div>
+
     @if (!Model.Any())
     {
         <div class="alert alert-info mt-3" role="alert">
@@ -64,3 +95,43 @@
         </div>
     }
 </div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const map = L.map('venuesMap').setView([55.751244, 37.618423], 11);
+            map.attributionControl.setPrefix(false);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+
+            const points = [
+                @foreach (var venue in Model.Where(v => v.Latitude.HasValue && v.Longitude.HasValue))
+                {
+                    <text>{
+                        name: '@venue.Name.Replace("'", "\\'")',
+                        address: '@venue.Address.Replace("'", "\\'")',
+                        lat: @venue.Latitude!.Value.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                        lng: @venue.Longitude!.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                    },</text>
+                }
+            ];
+
+            if (!points.length) {
+                return;
+            }
+
+            const bounds = [];
+            points.forEach(point => {
+                const marker = L.marker([point.lat, point.lng]).addTo(map);
+                marker.bindPopup(`<strong>${point.name}</strong><br/>${point.address}`);
+                bounds.push([point.lat, point.lng]);
+            });
+
+            map.fitBounds(bounds, { padding: [30, 30] });
+        });
+    </script>
+}

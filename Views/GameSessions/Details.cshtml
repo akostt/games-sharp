@@ -24,18 +24,24 @@
         
         <dt class="col-sm-3">Место проведения</dt>
         <dd class="col-sm-9">@(Model.Venue?.Name ?? "-")</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Organizer)</dt>
+        <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Organizer) ? "-" : Model.Organizer)</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.MaxParticipants)</dt>
+        <dd class="col-sm-9">@(Model.MaxParticipants.HasValue ? Model.MaxParticipants.Value.ToString() : "-")</dd>
         
         <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Status)</dt>
         <dd class="col-sm-9">
-            @if (Model.Status == "Completed")
+            @if (Model.Status == "Завершена")
             {
                 <span class="badge bg-success">@Model.Status</span>
             }
-            else if (Model.Status == "InProgress")
+            else if (Model.Status == "В процессе")
             {
                 <span class="badge bg-primary">В процессе</span>
             }
-            else if (Model.Status == "Cancelled")
+            else if (Model.Status == "Отменена")
             {
                 <span class="badge bg-danger">@Model.Status</span>
             }

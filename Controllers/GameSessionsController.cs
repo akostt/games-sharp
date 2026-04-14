@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using GamesSharp.Data;
 using GamesSharp.Models;
 using GamesSharp.Helpers;
+using System.Globalization;
 
 namespace GamesSharp.Controllers
 {
@@ -82,7 +83,7 @@ namespace GamesSharp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,GameId,VenueId,ScheduledDate,ActualStartTime,ActualEndTime,Notes,Organizer,MaxParticipants")] GameSession gameSession, int[]? selectedPlayers)
         {
-            ValidateSessionInput(gameSession, selectedPlayers);
+            await ValidateSessionInputAsync(gameSession, selectedPlayers);
 
             if (ModelState.IsValid)
             {
@@ -149,7 +150,7 @@ namespace GamesSharp.Controllers
                 return NotFoundWithLogging("Игровая сессия", id);
             }
 
-            ValidateSessionInput(gameSession, selectedPlayers);
+            await ValidateSessionInputAsync(gameSession, selectedPlayers);
 
             if (ModelState.IsValid)
             {
@@ -295,7 +296,46 @@ namespace GamesSharp.Controllers
             return Context.GameSessions.AnyAsync(e => e.Id == id);
         }
 
-        private void ValidateSessionInput(GameSession gameSession, IEnumerable<int>? selectedPlayers)
+        [HttpGet]
+        public async Task<IActionResult> GetEquipmentAvailability(int gameId, int? venueId)
+        {
+            if (gameId <= 0 || !venueId.HasValue)
+            {
+                return Json(Array.Empty<object>());
+            }
+
+            var required = await Context.GameEquipments
+                .AsNoTracking()
+                .Where(ge => ge.GameId == gameId)
+                .Select(ge => new
+                {
+                    ge.EquipmentId,
+                    EquipmentName = ge.Equipment.Name,
+                    RequiredQuantity = ge.RequiredQuantity
+                })
+                .ToListAsync();
+
+            var venueStock = await Context.VenueEquipments
+                .AsNoTracking()
+                .Where(ve => ve.VenueId == venueId.Value)
+                .ToDictionaryAsync(ve => ve.EquipmentId, ve => ve.Quantity);
+
+            var result = required
+                .Select(item => new
+                {
+                    item.EquipmentId,
+                    item.EquipmentName,
+                    item.RequiredQuantity,
+                    AvailableQuantity = venueStock.TryGetValue(item.EquipmentId, out var quantity) ? quantity : 0,
+                    IsEnough = venueStock.TryGetValue(item.EquipmentId, out var available) && available >= item.RequiredQuantity
+                })
+                .OrderBy(x => x.EquipmentName)
+                .ToList();
+
+            return Json(result);
+        }
+
+        private async Task ValidateSessionInputAsync(GameSession gameSession, IEnumerable<int>? selectedPlayers)
         {
             if (gameSession.ActualStartTime.HasValue && gameSession.ActualEndTime.HasValue &&
                 gameSession.ActualEndTime.Value < gameSession.ActualStartTime.Value)
@@ -315,6 +355,53 @@ namespace GamesSharp.Controllers
             {
                 ModelState.AddModelError(nameof(gameSession.MaxParticipants),
                     "Количество выбранных участников не может превышать ограничение сессии");
+            }
+
+            if (gameSession.VenueId.HasValue)
+            {
+                await ValidateVenueEquipmentAvailabilityAsync(gameSession.GameId, gameSession.VenueId.Value);
+            }
+        }
+
+        private async Task ValidateVenueEquipmentAvailabilityAsync(int gameId, int venueId)
+        {
+            var required = await Context.GameEquipments
+                .AsNoTracking()
+                .Where(ge => ge.GameId == gameId)
+                .Select(ge => new
+                {
+                    ge.EquipmentId,
+                    EquipmentName = ge.Equipment.Name,
+                    ge.RequiredQuantity
+                })
+                .ToListAsync();
+
+            if (!required.Any())
+            {
+                return;
+            }
+
+            var stock = await Context.VenueEquipments
+                .AsNoTracking()
+                .Where(ve => ve.VenueId == venueId)
+                .ToDictionaryAsync(ve => ve.EquipmentId, ve => ve.Quantity);
+
+            foreach (var item in required)
+            {
+                var available = stock.TryGetValue(item.EquipmentId, out var quantity) ? quantity : 0;
+                if (available < item.RequiredQuantity)
+                {
+                    var shortage = item.RequiredQuantity - available;
+                    ModelState.AddModelError(
+                        nameof(GameSession.VenueId),
+                        string.Format(
+                            CultureInfo.CurrentCulture,
+                            "На выбранной площадке недостаточно инвентаря \"{0}\": нужно {1}, доступно {2} (не хватает {3}).",
+                            item.EquipmentName,
+                            item.RequiredQuantity,
+                            available,
+                            shortage));
+                }
             }
         }
     }

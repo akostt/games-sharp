@@ -20,6 +20,7 @@ namespace GamesSharp.Data
         public DbSet<Venue> Venues { get; set; }
         public DbSet<Equipment> Equipments { get; set; }
         public DbSet<GameEquipment> GameEquipments { get; set; }
+        public DbSet<VenueEquipment> VenueEquipments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -84,6 +85,23 @@ namespace GamesSharp.Data
                 .HasForeignKey(ge => ge.EquipmentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Configure VenueEquipment relationships (Many-to-Many with quantity)
+            modelBuilder.Entity<VenueEquipment>()
+                .HasOne(ve => ve.Venue)
+                .WithMany(v => v.VenueEquipments)
+                .HasForeignKey(ve => ve.VenueId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<VenueEquipment>()
+                .HasOne(ve => ve.Equipment)
+                .WithMany()
+                .HasForeignKey(ve => ve.EquipmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<VenueEquipment>()
+                .HasIndex(ve => new { ve.VenueId, ve.EquipmentId })
+                .IsUnique();
+
             // Seed initial data
             SeedData(modelBuilder);
         }
@@ -108,17 +126,17 @@ namespace GamesSharp.Data
 
             // Seed Venues
             modelBuilder.Entity<Venue>().HasData(
-                new Venue { Id = 1, Name = "Игротека на Арбате", Address = "ул. Арбат, д. 10", Capacity = 30, Phone = "+7(495)123-45-67", RentalCostPerHour = 500 },
-                new Venue { Id = 2, Name = "Антикафе Таймкод", Address = "Ленинский пр-т, д. 5", Capacity = 20, Phone = "+7(495)234-56-78", RentalCostPerHour = 300 },
-                new Venue { Id = 3, Name = "Клуб настольных игр Мосигра", Address = "пр-т Мира, д. 33", Capacity = 50, Phone = "+7(495)345-67-89", RentalCostPerHour = 800 }
+                new Venue { Id = 1, Name = "Игротека на Арбате", Address = "ул. Арбат, д. 10", Capacity = 30, Phone = "+7(495)123-45-67", RentalCostPerHour = 500, Latitude = 55.7496, Longitude = 37.5927 },
+                new Venue { Id = 2, Name = "Антикафе Таймкод", Address = "Ленинский пр-т, д. 5", Capacity = 20, Phone = "+7(495)234-56-78", RentalCostPerHour = 300, Latitude = 55.7109, Longitude = 37.5865 },
+                new Venue { Id = 3, Name = "Клуб настольных игр Мосигра", Address = "пр-т Мира, д. 33", Capacity = 50, Phone = "+7(495)345-67-89", RentalCostPerHour = 800, Latitude = 55.7811, Longitude = 37.6347 }
             );
 
             // Seed Equipment
             modelBuilder.Entity<Equipment>().HasData(
-                new Equipment { Id = 1, Name = "Игральные кости (6-гранные)", Type = "Кости", Quantity = 100 },
-                new Equipment { Id = 2, Name = "Игровой таймер", Type = "Таймер", Quantity = 10 },
-                new Equipment { Id = 3, Name = "Игровой коврик", Type = "Аксессуар", Quantity = 5 },
-                new Equipment { Id = 4, Name = "Фишки (набор)", Type = "Фишки", Quantity = 50 }
+                new Equipment { Id = 1, Name = "Игральные кости (6-гранные)", Type = "Кости" },
+                new Equipment { Id = 2, Name = "Игровой таймер", Type = "Таймер" },
+                new Equipment { Id = 3, Name = "Игровой коврик", Type = "Аксессуар" },
+                new Equipment { Id = 4, Name = "Фишки (набор)", Type = "Фишки" }
             );
 
             // Seed Games (популярные в России)
@@ -238,6 +256,21 @@ namespace GamesSharp.Data
                 new GameCategoryAssignment { Id = 6, GameId = 6, GameCategoryId = 5 },
                 new GameCategoryAssignment { Id = 7, GameId = 7, GameCategoryId = 4 },
                 new GameCategoryAssignment { Id = 8, GameId = 8, GameCategoryId = 1 }
+            );
+
+            // Seed available equipment per venue
+            modelBuilder.Entity<VenueEquipment>().HasData(
+                new VenueEquipment { Id = 1, VenueId = 1, EquipmentId = 1, Quantity = 40 },
+                new VenueEquipment { Id = 2, VenueId = 1, EquipmentId = 2, Quantity = 4 },
+                new VenueEquipment { Id = 3, VenueId = 1, EquipmentId = 3, Quantity = 2 },
+                new VenueEquipment { Id = 4, VenueId = 1, EquipmentId = 4, Quantity = 20 },
+                new VenueEquipment { Id = 5, VenueId = 2, EquipmentId = 1, Quantity = 25 },
+                new VenueEquipment { Id = 6, VenueId = 2, EquipmentId = 2, Quantity = 2 },
+                new VenueEquipment { Id = 7, VenueId = 2, EquipmentId = 4, Quantity = 10 },
+                new VenueEquipment { Id = 8, VenueId = 3, EquipmentId = 1, Quantity = 60 },
+                new VenueEquipment { Id = 9, VenueId = 3, EquipmentId = 2, Quantity = 8 },
+                new VenueEquipment { Id = 10, VenueId = 3, EquipmentId = 3, Quantity = 4 },
+                new VenueEquipment { Id = 11, VenueId = 3, EquipmentId = 4, Quantity = 35 }
             );
         }
     }

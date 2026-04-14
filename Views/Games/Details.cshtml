@@ -78,7 +78,6 @@
                             <th>Название</th>
                             <th>Тип</th>
                             <th>Требуется</th>
-                            <th>В наличии</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -88,7 +87,6 @@
                                 <td><strong>@ge.Equipment?.Name</strong></td>
                                 <td>@(string.IsNullOrWhiteSpace(ge.Equipment?.Type) ? "-" : ge.Equipment.Type)</td>
                                 <td><span class="badge bg-primary">@ge.RequiredQuantity</span></td>
-                                <td><span class="badge bg-info">@ge.Equipment?.Quantity</span></td>
                             </tr>
                         }
                     </tbody>

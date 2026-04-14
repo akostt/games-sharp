@@ -39,6 +39,23 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group mb-3">
+                            <label asp-for="Latitude" class="control-label"></label>
+                            <input asp-for="Latitude" class="form-control" type="number" min="-90" max="90" step="0.000001" placeholder="Например: 55.751244" />
+                            <span asp-validation-for="Latitude" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="Longitude" class="control-label"></label>
+                            <input asp-for="Longitude" class="form-control" type="number" min="-180" max="180" step="0.000001" placeholder="Например: 37.618423" />
+                            <span asp-validation-for="Longitude" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
                             <label asp-for="Phone" class="control-label"></label>
                             <input asp-for="Phone" class="form-control" type="tel" placeholder="+7 (XXX) XXX-XX-XX" />
                             <span asp-validation-for="Phone" class="text-danger"></span>
@@ -59,6 +76,55 @@
                     <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
 
+                @if (ViewBag.AllEquipment != null && ((List<GamesSharp.Models.Equipment>)ViewBag.AllEquipment).Any())
+                {
+                    var equipmentQuantities = ViewBag.EquipmentQuantities as Dictionary<int, int> ?? new Dictionary<int, int>();
+
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="bi bi-box-seam"></i> Инвентарь на площадке</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">Укажите, сколько предметов хранится именно в этой точке. Если 0, поле можно оставить пустым или поставить 0.</p>
+                            @foreach (var equipment in (List<GamesSharp.Models.Equipment>)ViewBag.AllEquipment)
+                            {
+                                var quantity = equipmentQuantities.TryGetValue(equipment.Id, out var value) ? value : 0;
+                                <div class="row mb-2 align-items-center">
+                                    <div class="col-md-7">
+                                        <label class="form-label mb-0" for="equipment_@equipment.Id">
+                                            <strong>@equipment.Name</strong>
+                                            @if (!string.IsNullOrWhiteSpace(equipment.Type))
+                                            {
+                                                <span class="badge bg-secondary ms-1">@equipment.Type</span>
+                                            }
+                                        </label>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <input id="equipment_@equipment.Id"
+                                               name="equipmentQuantities[@equipment.Id]"
+                                               type="number"
+                                               min="0"
+                                               max="10000"
+                                               step="1"
+                                               class="form-control"
+                                               value="@quantity" />
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <div class="card mb-3">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-map"></i> Предпросмотр на карте</h5>
+                        <small class="text-muted">Появится после ввода широты и долготы</small>
+                    </div>
+                    <div class="card-body">
+                        <div id="venueCreateMap" style="height: 280px; border-radius: 0.5rem;"></div>
+                    </div>
+                </div>
+
                 <div class="form-group mt-4">
                     <button type="submit" class="btn btn-success btn-lg">
                         <i class="bi bi-check-circle"></i> Создать
@@ -74,4 +140,49 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const latInput = document.getElementById('Latitude');
+            const lngInput = document.getElementById('Longitude');
+            const fallbackCoords = [55.751244, 37.618423];
+
+            const map = L.map('venueCreateMap').setView(fallbackCoords, 11);
+            map.attributionControl.setPrefix(false);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+
+            let marker = null;
+
+            function updateMarker() {
+                const lat = parseFloat(latInput.value);
+                const lng = parseFloat(lngInput.value);
+
+                if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+                    if (marker) {
+                        map.removeLayer(marker);
+                        marker = null;
+                    }
+                    map.setView(fallbackCoords, 11);
+                    return;
+                }
+
+                const coords = [lat, lng];
+                if (!marker) {
+                    marker = L.marker(coords).addTo(map);
+                } else {
+                    marker.setLatLng(coords);
+                }
+
+                map.setView(coords, 14);
+            }
+
+            latInput.addEventListener('input', updateMarker);
+            lngInput.addEventListener('input', updateMarker);
+            updateMarker();
+        });
+    </script>
 }

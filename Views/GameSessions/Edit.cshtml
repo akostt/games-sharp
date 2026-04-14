@@ -51,15 +51,53 @@
                 </select>
                 <span asp-validation-for="VenueId" class="text-danger"></span>
             </div>
+            <div class="card mb-3">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-box-seam"></i> Инвентарь для бронирования</span>
+                    <small class="text-muted">Сравнение "требуется" и "на площадке"</small>
+                </div>
+                <div class="card-body">
+                    <div id="equipmentAvailabilityPlaceholder" class="text-muted">Выберите игру и место проведения.</div>
+                    <div id="equipmentAvailabilityContainer" class="table-responsive d-none">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Оборудование</th>
+                                    <th>Требуется</th>
+                                    <th>Доступно</th>
+                                    <th>Статус</th>
+                                </tr>
+                            </thead>
+                            <tbody id="equipmentAvailabilityBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
             <div class="form-group mb-3">
                 <label asp-for="Status" class="control-label"></label>
                 <select asp-for="Status" class="form-select">
-                    <option value="Planned">Запланирована</option>
-                    <option value="InProgress">В процессе</option>
-                    <option value="Completed">Завершена</option>
-                    <option value="Cancelled">Отменена</option>
+                    <option value="Запланирована">Запланирована</option>
+                    <option value="В процессе">В процессе</option>
+                    <option value="Завершена">Завершена</option>
+                    <option value="Отменена">Отменена</option>
                 </select>
                 <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="Organizer" class="control-label"></label>
+                        <input asp-for="Organizer" class="form-control" />
+                        <span asp-validation-for="Organizer" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="MaxParticipants" class="control-label"></label>
+                        <input asp-for="MaxParticipants" class="form-control" type="number" min="1" max="100" />
+                        <span asp-validation-for="MaxParticipants" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
             <div class="form-group mb-3">
                 <label class="control-label">Игроки</label>
@@ -83,4 +121,70 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const gameSelect = document.getElementById('GameId');
+            const venueSelect = document.getElementById('VenueId');
+            const placeholder = document.getElementById('equipmentAvailabilityPlaceholder');
+            const container = document.getElementById('equipmentAvailabilityContainer');
+            const body = document.getElementById('equipmentAvailabilityBody');
+
+            async function refreshAvailability() {
+                const gameId = parseInt(gameSelect.value, 10);
+                const venueId = parseInt(venueSelect.value, 10);
+
+                if (!Number.isFinite(gameId) || !Number.isFinite(venueId)) {
+                    placeholder.textContent = 'Выберите игру и место проведения.';
+                    placeholder.classList.remove('d-none');
+                    container.classList.add('d-none');
+                    body.innerHTML = '';
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/GameSessions/GetEquipmentAvailability?gameId=${gameId}&venueId=${venueId}`);
+                    if (!response.ok) {
+                        throw new Error('Не удалось получить данные по оборудованию.');
+                    }
+
+                    const items = await response.json();
+                    body.innerHTML = '';
+
+                    if (!items.length) {
+                        placeholder.textContent = 'Для выбранной игры не задано обязательное оборудование.';
+                        placeholder.classList.remove('d-none');
+                        container.classList.add('d-none');
+                        return;
+                    }
+
+                    items.forEach(item => {
+                        const statusBadge = item.isEnough
+                            ? '<span class="badge bg-success">Хватает</span>'
+                            : '<span class="badge bg-danger">Недостаточно</span>';
+
+                        const row = `<tr>
+                            <td>${item.equipmentName}</td>
+                            <td><span class="badge bg-primary">${item.requiredQuantity}</span></td>
+                            <td><span class="badge bg-info">${item.availableQuantity}</span></td>
+                            <td>${statusBadge}</td>
+                        </tr>`;
+
+                        body.insertAdjacentHTML('beforeend', row);
+                    });
+
+                    placeholder.classList.add('d-none');
+                    container.classList.remove('d-none');
+                } catch (error) {
+                    placeholder.textContent = error.message;
+                    placeholder.classList.remove('d-none');
+                    container.classList.add('d-none');
+                    body.innerHTML = '';
+                }
+            }
+
+            gameSelect.addEventListener('change', refreshAvailability);
+            venueSelect.addEventListener('change', refreshAvailability);
+            refreshAvailability();
+        });
+    </script>
 }

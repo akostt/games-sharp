@@ -20,6 +20,8 @@ namespace GamesSharp.Controllers
             {
                 var venues = await Context.Venues
                     .Include(v => v.GameSessions)
+                    .Include(v => v.VenueEquipments)
+                        .ThenInclude(ve => ve.Equipment)
                     .ToListAsync();
 
                 Logger.LogInformation("Загружено {Count} мест проведения", venues.Count);
@@ -42,6 +44,8 @@ namespace GamesSharp.Controllers
                 var venue = await Context.Venues
                     .Include(v => v.GameSessions)
                     .ThenInclude(gs => gs.Game)
+                    .Include(v => v.VenueEquipments)
+                        .ThenInclude(ve => ve.Equipment)
                     .FirstOrDefaultAsync(m => m.Id == id);
 
                 if (venue == null)
@@ -58,19 +62,25 @@ namespace GamesSharp.Controllers
         // GET: Venues/Create
         public IActionResult Create()
         {
+            PopulateEquipmentViewData();
             return View();
         }
 
         // POST: Venues/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Address,Capacity,Phone,RentalCostPerHour,Description")] Venue venue)
+        public async Task<IActionResult> Create([Bind("Id,Name,Address,Capacity,Phone,RentalCostPerHour,Description,Latitude,Longitude")] Venue venue, Dictionary<int, int>? equipmentQuantities)
         {
+            await ValidateVenueEquipmentQuantitiesAsync(equipmentQuantities);
+
             if (ModelState.IsValid)
             {
                 try
                 {
                     Context.Add(venue);
+                    await Context.SaveChangesAsync();
+
+                    await SaveVenueEquipmentAsync(venue.Id, equipmentQuantities);
                     await Context.SaveChangesAsync();
 
                     Logger.LogInformation("Создано место: {VenueName} (ID: {VenueId})", venue.Name, venue.Id);
@@ -84,6 +94,7 @@ namespace GamesSharp.Controllers
                 }
             }
 
+            PopulateEquipmentViewData(equipmentQuantities);
             return View(venue);
         }
 
@@ -99,6 +110,12 @@ namespace GamesSharp.Controllers
                 if (venue == null)
                     return NotFoundWithLogging("Место проведения", id);
 
+                var equipmentQuantities = await Context.VenueEquipments
+                    .AsNoTracking()
+                    .Where(ve => ve.VenueId == venue.Id)
+                    .ToDictionaryAsync(ve => ve.EquipmentId, ve => ve.Quantity);
+
+                PopulateEquipmentViewData(equipmentQuantities);
                 return View(venue);
             }
             catch (Exception ex)
@@ -110,16 +127,26 @@ namespace GamesSharp.Controllers
         // POST: Venues/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Address,Capacity,Phone,RentalCostPerHour,Description")] Venue venue)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Address,Capacity,Phone,RentalCostPerHour,Description,Latitude,Longitude")] Venue venue, Dictionary<int, int>? equipmentQuantities)
         {
             if (id != venue.Id)
                 return NotFoundWithLogging("Место проведения", id);
+
+            await ValidateVenueEquipmentQuantitiesAsync(equipmentQuantities);
 
             if (ModelState.IsValid)
             {
                 try
                 {
                     Context.Update(venue);
+
+                    var existingEquipment = await Context.VenueEquipments
+                        .Where(ve => ve.VenueId == venue.Id)
+                        .ToListAsync();
+
+                    Context.VenueEquipments.RemoveRange(existingEquipment);
+                    await SaveVenueEquipmentAsync(venue.Id, equipmentQuantities);
+
                     await Context.SaveChangesAsync();
 
                     Logger.LogInformation("Обновлено место: {VenueName} (ID: {VenueId})", venue.Name, venue.Id);
@@ -144,6 +171,7 @@ namespace GamesSharp.Controllers
                 }
             }
 
+            PopulateEquipmentViewData(equipmentQuantities);
             return View(venue);
         }
 
@@ -197,6 +225,77 @@ namespace GamesSharp.Controllers
         private async Task<bool> VenueExistsAsync(int id)
         {
             return await Context.Venues.AnyAsync(e => e.Id == id);
+        }
+
+        private void PopulateEquipmentViewData(Dictionary<int, int>? equipmentQuantities = null)
+        {
+            ViewBag.AllEquipment = Context.Equipments
+                .AsNoTracking()
+                .OrderBy(e => e.Name)
+                .ToList();
+
+            ViewBag.EquipmentQuantities = equipmentQuantities ?? new Dictionary<int, int>();
+        }
+
+        private Task SaveVenueEquipmentAsync(int venueId, Dictionary<int, int>? equipmentQuantities)
+        {
+            if (equipmentQuantities == null)
+            {
+                return Task.CompletedTask;
+            }
+
+            var items = equipmentQuantities
+                .Where(kv => kv.Value > 0)
+                .Select(kv => new VenueEquipment
+                {
+                    VenueId = venueId,
+                    EquipmentId = kv.Key,
+                    Quantity = kv.Value
+                })
+                .ToList();
+
+            if (items.Count > 0)
+            {
+                Context.VenueEquipments.AddRange(items);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private async Task ValidateVenueEquipmentQuantitiesAsync(Dictionary<int, int>? equipmentQuantities)
+        {
+            if (equipmentQuantities == null || equipmentQuantities.Count == 0)
+            {
+                return;
+            }
+
+            var validEquipmentIds = await Context.Equipments
+                .AsNoTracking()
+                .Select(e => e.Id)
+                .ToListAsync();
+
+            var validSet = validEquipmentIds.ToHashSet();
+
+            foreach (var pair in equipmentQuantities)
+            {
+                var fieldKey = $"equipmentQuantities[{pair.Key}]";
+
+                if (!validSet.Contains(pair.Key))
+                {
+                    ModelState.AddModelError(fieldKey, "Выбрано неизвестное оборудование.");
+                    continue;
+                }
+
+                if (pair.Value < 0)
+                {
+                    ModelState.AddModelError(fieldKey, "Количество на площадке не может быть отрицательным.");
+                }
+
+                if (pair.Value > 10000)
+                {
+                    ModelState.AddModelError(fieldKey, "Количество на площадке не должно превышать 10000.");
+                }
+            }
         }
     }
 }
