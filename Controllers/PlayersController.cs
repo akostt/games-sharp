@@ -73,8 +73,10 @@ namespace GamesSharp.Controllers
         // POST: Players/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Email,Phone,RegisteredDate")] Player player)
+        public async Task<IActionResult> Create([Bind("Id,Name,Email,Phone,BirthDate,City,FavoriteGenre")] Player player)
         {
+            ValidatePlayerData(player);
+
             if (ModelState.IsValid)
             {
                 try
@@ -118,18 +120,32 @@ namespace GamesSharp.Controllers
         // POST: Players/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Email,Phone,RegisteredDate")] Player player)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Email,Phone,BirthDate,City,FavoriteGenre")] Player player)
         {
             if (id != player.Id)
             {
                 return NotFoundWithLogging("Игрок", id);
             }
 
+            ValidatePlayerData(player);
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    Context.Players.Update(player);
+                    var existingPlayer = await Context.Players.FirstOrDefaultAsync(p => p.Id == id);
+                    if (existingPlayer == null)
+                    {
+                        return NotFoundWithLogging("Игрок", id);
+                    }
+
+                    existingPlayer.Name = player.Name;
+                    existingPlayer.Email = player.Email;
+                    existingPlayer.Phone = player.Phone;
+                    existingPlayer.BirthDate = player.BirthDate;
+                    existingPlayer.City = player.City;
+                    existingPlayer.FavoriteGenre = player.FavoriteGenre;
+
                     await Context.SaveChangesAsync();
 
                     SetSuccessMessage(Constants.SuccessMessages.RecordUpdated);
@@ -222,6 +238,19 @@ namespace GamesSharp.Controllers
         private Task<bool> PlayerExistsAsync(int id)
         {
             return Context.Players.AnyAsync(e => e.Id == id);
+        }
+
+        private void ValidatePlayerData(Player player)
+        {
+            if (string.IsNullOrWhiteSpace(player.Name))
+            {
+                ModelState.AddModelError(nameof(player.Name), "Имя игрока обязательно");
+            }
+
+            if (player.BirthDate.HasValue && player.BirthDate.Value.Date > DateTime.Today)
+            {
+                ModelState.AddModelError(nameof(player.BirthDate), "Дата рождения не может быть в будущем");
+            }
         }
     }
 }

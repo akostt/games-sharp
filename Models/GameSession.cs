@@ -25,15 +25,15 @@ namespace GamesSharp.Models
         
         [Display(Name = "Статус")]
         [Required(ErrorMessage = "Статус обязателен")]
-        [StringLength(20)]
+        [StringLength(20, ErrorMessage = "Статус не должен превышать 20 символов")]
         public string Status { get; set; } = "Запланирована"; // Запланирована, В процессе, Завершена, Отменена
         
         [Display(Name = "Заметки")]
-        [StringLength(500)]
+        [StringLength(500, ErrorMessage = "Заметки не должны превышать 500 символов")]
         public string? Notes { get; set; }
         
         [Display(Name = "Организатор")]
-        [StringLength(100)]
+        [StringLength(100, ErrorMessage = "Имя организатора не должно превышать 100 символов")]
         public string? Organizer { get; set; }
         
         [Display(Name = "Макс. участников")]

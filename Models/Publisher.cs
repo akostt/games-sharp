@@ -12,7 +12,7 @@ namespace GamesSharp.Models
         public string Name { get; set; } = string.Empty;
         
         [Display(Name = "Страна")]
-        [StringLength(50)]
+        [StringLength(50, ErrorMessage = "Название страны не должно превышать 50 символов")]
         public string? Country { get; set; }
         
         [Display(Name = "Год основания")]
@@ -20,7 +20,7 @@ namespace GamesSharp.Models
         
         [Display(Name = "Веб-сайт")]
         [Url(ErrorMessage = "Некорректный URL")]
-        [StringLength(200)]
+        [StringLength(200, ErrorMessage = "URL не должен превышать 200 символов")]
         public string? Website { get; set; }
 
         // Navigation property

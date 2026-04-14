@@ -21,11 +21,11 @@ namespace GamesSharp.Models
         public int? Place { get; set; }
         
         [Display(Name = "Команда")]
-        [StringLength(50)]
+        [StringLength(50, ErrorMessage = "Название команды не должно превышать 50 символов")]
         public string? Team { get; set; }
         
         [Display(Name = "Комментарий")]
-        [StringLength(500)]
+        [StringLength(500, ErrorMessage = "Комментарий не должен превышать 500 символов")]
         public string? Comment { get; set; }
 
         // Navigation properties

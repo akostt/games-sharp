@@ -12,7 +12,7 @@ namespace GamesSharp.Models
         public string Name { get; set; } = string.Empty;
         
         [Display(Name = "Описание")]
-        [StringLength(500)]
+        [StringLength(500, ErrorMessage = "Описание не должно превышать 500 символов")]
         public string? Description { get; set; }
 
         // Navigation property

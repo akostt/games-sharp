@@ -14,12 +14,12 @@ namespace GamesSharp.Models
         [Display(Name = "Email")]
         [EmailAddress(ErrorMessage = "Некорректный формат email (example@domain.com)")]
         [RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", ErrorMessage = "Email должен быть в формате: example@domain.com")]
-        [StringLength(100)]
+        [StringLength(100, ErrorMessage = "Email не должен превышать 100 символов")]
         public string? Email { get; set; }
         
         [Display(Name = "Телефон")]
         [RegularExpression(@"^\+7\s?\(\d{3}\)\s?\d{3}-\d{2}-\d{2}$", ErrorMessage = "Телефон должен быть в формате: +7 (XXX) XXX-XX-XX")]
-        [StringLength(20)]
+        [StringLength(20, ErrorMessage = "Телефон не должен превышать 20 символов")]
         public string? Phone { get; set; }
         
         [Display(Name = "Дата регистрации")]
@@ -29,11 +29,11 @@ namespace GamesSharp.Models
         public DateTime? BirthDate { get; set; }
         
         [Display(Name = "Город")]
-        [StringLength(50)]
+        [StringLength(50, ErrorMessage = "Название города не должно превышать 50 символов")]
         public string? City { get; set; }
         
         [Display(Name = "Любимый жанр")]
-        [StringLength(50)]
+        [StringLength(50, ErrorMessage = "Название жанра не должно превышать 50 символов")]
         public string? FavoriteGenre { get; set; }
 
         // Navigation properties

@@ -106,6 +106,7 @@ namespace GamesSharp.Controllers
             Dictionary<int, int>? equipmentQuantities)
         {
             ValidateGameData(game);
+            ValidateEquipmentQuantities(selectedEquipment, equipmentQuantities);
 
             if (ModelState.IsValid)
             {
@@ -190,6 +191,7 @@ namespace GamesSharp.Controllers
                 return NotFoundWithLogging("Игра", id);
 
             ValidateGameData(game);
+            ValidateEquipmentQuantities(selectedEquipment, equipmentQuantities);
 
             if (ModelState.IsValid)
             {
@@ -450,6 +452,46 @@ namespace GamesSharp.Controllers
 
             if (game.MaxPlayers < game.MinPlayers)
                 ModelState.AddModelError(nameof(game.MaxPlayers), "Максимальное количество игроков должно быть больше минимального");
+
+            if (game.YearPublished.HasValue)
+            {
+                var currentYear = DateTime.UtcNow.Year;
+                if (game.YearPublished.Value < 1900 || game.YearPublished.Value > currentYear + 5)
+                {
+                    ModelState.AddModelError(nameof(game.YearPublished),
+                        $"Год издания должен быть между 1900 и {currentYear + 5}");
+                }
+            }
+        }
+
+        private void ValidateEquipmentQuantities(List<int>? selectedEquipment, Dictionary<int, int>? equipmentQuantities)
+        {
+            if (selectedEquipment == null || !selectedEquipment.Any())
+            {
+                return;
+            }
+
+            foreach (var equipmentId in selectedEquipment.Distinct())
+            {
+                var fieldKey = $"equipmentQuantities[{equipmentId}]";
+
+                if (equipmentQuantities == null || !equipmentQuantities.TryGetValue(equipmentId, out var quantity))
+                {
+                    ModelState.AddModelError(fieldKey, "Укажите требуемое количество оборудования.");
+                    continue;
+                }
+
+                if (quantity <= 0)
+                {
+                    ModelState.AddModelError(fieldKey, "Требуемое количество должно быть больше нуля.");
+                    continue;
+                }
+
+                if (quantity > 1000)
+                {
+                    ModelState.AddModelError(fieldKey, "Требуемое количество не должно превышать 1000.");
+                }
+            }
         }
     }
 }

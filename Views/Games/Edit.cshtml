@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Редактировать игру";
+    var maxYear = DateTime.UtcNow.Year + 5;
 }
 
 <div class="container mt-4">
@@ -11,7 +12,7 @@
 <div class="row">
     <div class="col-md-6">
         <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="All" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group mb-3">
                 <label asp-for="Name" class="control-label"></label>
@@ -70,7 +71,7 @@
                 <div class="col-md-6">
                     <div class="form-group mb-3">
                         <label asp-for="YearPublished" class="control-label"></label>
-                        <input asp-for="YearPublished" class="form-control" type="number" />
+                        <input asp-for="YearPublished" class="form-control" type="number" min="1900" max="@maxYear" step="1" />
                         <span asp-validation-for="YearPublished" class="text-danger"></span>
                     </div>
                 </div>
@@ -153,9 +154,19 @@
                                         <input type="number" class="form-control" 
                                                name="equipmentQuantities[@equipment.Id]" 
                                                id="quantity_@equipment.Id"
-                                               min="1" value="@quantity" 
+                                               min="1" step="1" value="@quantity" 
+                                                 @(isSelected ? "required" : "")
                                                @(!isSelected ? "disabled" : "") />
                                     </div>
+                                    @{
+                                        var quantityFieldKey = $"equipmentQuantities[{equipment.Id}]";
+                                        var hasQuantityError = ViewData.ModelState.TryGetValue(quantityFieldKey, out var quantityState) &&
+                                                               quantityState?.Errors.Count > 0;
+                                    }
+                                    @if (hasQuantityError)
+                                    {
+                                        <span class="text-danger">@quantityState!.Errors[0].ErrorMessage</span>
+                                    }
                                 </div>
                             </div>
                         }
@@ -185,7 +196,15 @@
             } else {
                 quantityInput.disabled = true;
                 quantityInput.required = false;
+                quantityInput.setCustomValidity('');
             }
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('input[name="selectedEquipment"]').forEach(function (checkbox) {
+                const equipmentId = checkbox.value;
+                toggleQuantityInput(equipmentId);
+            });
+        });
     </script>
 }

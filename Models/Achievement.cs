@@ -14,14 +14,14 @@ namespace GamesSharp.Models
         public string Name { get; set; } = string.Empty;
         
         [Display(Name = "Описание")]
-        [StringLength(500)]
+        [StringLength(500, ErrorMessage = "Описание не должно превышать 500 символов")]
         public string? Description { get; set; }
         
         [Display(Name = "Дата получения")]
         public DateTime AchievedDate { get; set; }
         
         [Display(Name = "Категория")]
-        [StringLength(50)]
+        [StringLength(50, ErrorMessage = "Название категории не должно превышать 50 символов")]
         public string? Category { get; set; } // Victory, Participation, Special, etc.
 
         // Navigation property

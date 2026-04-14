@@ -19,18 +19,29 @@ namespace GamesSharp.Validation
             if (value == null)
                 return ValidationResult.Success;
 
-            var currentValue = (IComparable)value;
+            if (value is not IComparable currentValue)
+            {
+                return new ValidationResult(
+                    ErrorMessage ?? $"{validationContext.DisplayName} должно быть сравнимым значением");
+            }
+
             var property = validationContext.ObjectType.GetProperty(_comparisonProperty);
 
             if (property == null)
-                throw new ArgumentException("Property with this name not found");
+                throw new ArgumentException($"Свойство '{_comparisonProperty}' не найдено");
 
             var comparisonValue = property.GetValue(validationContext.ObjectInstance);
 
             if (comparisonValue == null)
                 return ValidationResult.Success;
 
-            if (currentValue.CompareTo((IComparable)comparisonValue) < 0)
+            if (comparisonValue is not IComparable comparisonComparable)
+            {
+                return new ValidationResult(
+                    ErrorMessage ?? $"Свойство '{_comparisonProperty}' должно быть сравнимым значением");
+            }
+
+            if (currentValue.CompareTo(comparisonComparable) < 0)
             {
                 return new ValidationResult(
                     ErrorMessage ?? $"{validationContext.DisplayName} должно быть больше или равно {_comparisonProperty}");
@@ -52,7 +63,7 @@ namespace GamesSharp.Validation
 
             if (value is int year)
             {
-                var currentYear = DateTime.Now.Year;
+                var currentYear = DateTime.UtcNow.Year;
                 if (year < 1900 || year > currentYear + 5)
                 {
                     return new ValidationResult(

@@ -14,16 +14,17 @@ namespace GamesSharp.Models
         
         [Display(Name = "Адрес")]
         [Required(ErrorMessage = "Адрес обязателен")]
-        [StringLength(200)]
+        [StringLength(200, ErrorMessage = "Адрес не должен превышать 200 символов")]
         public string Address { get; set; } = string.Empty;
         
         [Display(Name = "Вместимость")]
+        [Required(ErrorMessage = "Вместимость обязательна")]
         [Range(1, 1000, ErrorMessage = "Вместимость должна быть от 1 до 1000")]
         public int Capacity { get; set; }
         
         [Display(Name = "Телефон")]
         [Phone(ErrorMessage = "Некорректный номер телефона")]
-        [StringLength(20)]
+        [StringLength(20, ErrorMessage = "Телефон не должен превышать 20 символов")]
         public string? Phone { get; set; }
         
         [Display(Name = "Стоимость аренды (руб./час)")]
@@ -32,7 +33,7 @@ namespace GamesSharp.Models
         public decimal? RentalCostPerHour { get; set; }
         
         [Display(Name = "Описание")]
-        [StringLength(500)]
+        [StringLength(500, ErrorMessage = "Описание не должно превышать 500 символов")]
         public string? Description { get; set; }
 
         // Navigation property

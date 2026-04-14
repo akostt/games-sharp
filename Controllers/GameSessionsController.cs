@@ -82,6 +82,8 @@ namespace GamesSharp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,GameId,VenueId,ScheduledDate,ActualStartTime,ActualEndTime,Notes,Organizer,MaxParticipants")] GameSession gameSession, int[]? selectedPlayers)
         {
+            ValidateSessionInput(gameSession, selectedPlayers);
+
             if (ModelState.IsValid)
             {
                 try
@@ -146,6 +148,8 @@ namespace GamesSharp.Controllers
             {
                 return NotFoundWithLogging("Игровая сессия", id);
             }
+
+            ValidateSessionInput(gameSession, selectedPlayers);
 
             if (ModelState.IsValid)
             {
@@ -289,6 +293,29 @@ namespace GamesSharp.Controllers
         private Task<bool> GameSessionExistsAsync(int id)
         {
             return Context.GameSessions.AnyAsync(e => e.Id == id);
+        }
+
+        private void ValidateSessionInput(GameSession gameSession, IEnumerable<int>? selectedPlayers)
+        {
+            if (gameSession.ActualStartTime.HasValue && gameSession.ActualEndTime.HasValue &&
+                gameSession.ActualEndTime.Value < gameSession.ActualStartTime.Value)
+            {
+                ModelState.AddModelError(nameof(gameSession.ActualEndTime),
+                    "Время завершения не может быть раньше времени начала");
+            }
+
+            if (gameSession.MaxParticipants.HasValue && gameSession.MaxParticipants <= 0)
+            {
+                ModelState.AddModelError(nameof(gameSession.MaxParticipants),
+                    "Максимальное количество участников должно быть больше нуля");
+            }
+
+            var selectedCount = selectedPlayers?.Distinct().Count() ?? 0;
+            if (gameSession.MaxParticipants.HasValue && selectedCount > gameSession.MaxParticipants.Value)
+            {
+                ModelState.AddModelError(nameof(gameSession.MaxParticipants),
+                    "Количество выбранных участников не может превышать ограничение сессии");
+            }
         }
     }
 }

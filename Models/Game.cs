@@ -28,6 +28,7 @@ namespace GamesSharp.Models
         public int MaxPlayers { get; set; }
         
         [Display(Name = "Средняя длительность (мин)")]
+        [Required(ErrorMessage = "Средняя длительность обязательна")]
         [Range(1, 1000, ErrorMessage = "Длительность должна быть от 1 до 1000 минут")]
         public int AverageDuration { get; set; }
         
