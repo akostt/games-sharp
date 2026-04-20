@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace GamesSharp.Migrations
+namespace GamesSharp.src.Infrastructure.PersistenceMigrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
@@ -186,48 +186,87 @@ namespace GamesSharp.Migrations
                         new
                         {
                             Id = 1,
-                            AverageDuration = 60,
+                            AverageDuration = 90,
                             Complexity = 3,
-                            Description = "Пародийная карточная игра на тему фэнтези-подземелий. Убивай монстров, предавай друзей, хватай сокровища!",
+                            Description = "Классическая экономическая настольная игра про покупку улиц, аренду и развитие собственности.",
                             MaxPlayers = 6,
-                            MinAge = 10,
-                            MinPlayers = 3,
-                            Name = "Манчкин",
+                            MinAge = 8,
+                            MinPlayers = 2,
+                            Name = "Монополия",
                             PublisherId = 1,
-                            YearPublished = 2001
+                            YearPublished = 1935
                         },
                         new
                         {
                             Id = 2,
-                            AverageDuration = 45,
-                            Complexity = 2,
-                            Description = "Российская игра на ассоциации с красивыми иллюстрациями. Придумывай ассоциации к картинкам!",
-                            MaxPlayers = 7,
-                            MinAge = 12,
-                            MinPlayers = 4,
-                            Name = "Имаджинариум",
+                            AverageDuration = 30,
+                            Complexity = 1,
+                            Description = "Одна из самых популярных карточных игр в России. Цель - избавиться от карт раньше соперников.",
+                            MaxPlayers = 6,
+                            MinAge = 10,
+                            MinPlayers = 2,
+                            Name = "Дурак",
                             PublisherId = 1,
-                            YearPublished = 2011
+                            YearPublished = 1810
                         },
                         new
                         {
                             Id = 3,
-                            AverageDuration = 15,
+                            AverageDuration = 25,
                             Complexity = 1,
-                            Description = "Весёлая карточная игра в русскую рулетку с котятами, лазерами и козами",
-                            MaxPlayers = 5,
+                            Description = "Динамичная карточная игра с цветами и действиями, популярная в компаниях и семьях.",
+                            MaxPlayers = 10,
                             MinAge = 7,
                             MinPlayers = 2,
-                            Name = "Взрывные котята",
+                            Name = "Уно",
                             PublisherId = 1,
-                            YearPublished = 2015
+                            YearPublished = 1971
                         },
                         new
                         {
                             Id = 4,
-                            AverageDuration = 15,
+                            AverageDuration = 45,
                             Complexity = 2,
-                            Description = "Командная игра на ассоциации и дедукцию. Угадывай слова по намёкам капитана!",
+                            Description = "Популярная российская игра на ассоциации с иллюстрациями.",
+                            MaxPlayers = 7,
+                            MinAge = 12,
+                            MinPlayers = 4,
+                            Name = "Имаджинариум",
+                            PublisherId = 2,
+                            YearPublished = 2011
+                        },
+                        new
+                        {
+                            Id = 5,
+                            AverageDuration = 40,
+                            Complexity = 2,
+                            Description = "Командная психологическая игра на обсуждение и дедукцию.",
+                            MaxPlayers = 15,
+                            MinAge = 12,
+                            MinPlayers = 6,
+                            Name = "Мафия",
+                            PublisherId = 1,
+                            YearPublished = 1986
+                        },
+                        new
+                        {
+                            Id = 6,
+                            AverageDuration = 20,
+                            Complexity = 1,
+                            Description = "Быстрая карточная игра, очень популярная в российских компаниях.",
+                            MaxPlayers = 10,
+                            MinAge = 8,
+                            MinPlayers = 2,
+                            Name = "Свинтус",
+                            PublisherId = 2,
+                            YearPublished = 2006
+                        },
+                        new
+                        {
+                            Id = 7,
+                            AverageDuration = 20,
+                            Complexity = 2,
+                            Description = "Командная игра на ассоциации и дедукцию.",
                             MaxPlayers = 8,
                             MinAge = 10,
                             MinPlayers = 4,
@@ -237,55 +276,16 @@ namespace GamesSharp.Migrations
                         },
                         new
                         {
-                            Id = 5,
-                            AverageDuration = 75,
-                            Complexity = 6,
-                            Description = "Классическая стратегия о колонизации острова Катан. Торгуй, строй, побеждай!",
-                            MaxPlayers = 4,
-                            MinAge = 10,
-                            MinPlayers = 3,
-                            Name = "Колонизаторы",
-                            PublisherId = 1,
-                            YearPublished = 1995
-                        },
-                        new
-                        {
-                            Id = 6,
-                            AverageDuration = 45,
-                            Complexity = 1,
-                            Description = "Популярная игра в объяснение слов. Объясняй слова, не используя однокоренные!",
-                            MaxPlayers = 12,
-                            MinAge = 7,
-                            MinPlayers = 4,
-                            Name = "Элиас",
-                            PublisherId = 2,
-                            YearPublished = 1993
-                        },
-                        new
-                        {
-                            Id = 7,
-                            AverageDuration = 30,
-                            Complexity = 1,
-                            Description = "Знаменитая карточная игра. Избавься от всех карт первым!",
-                            MaxPlayers = 10,
-                            MinAge = 7,
-                            MinPlayers = 2,
-                            Name = "Uno",
-                            PublisherId = 2,
-                            YearPublished = 1971
-                        },
-                        new
-                        {
                             Id = 8,
-                            AverageDuration = 40,
-                            Complexity = 4,
-                            Description = "Игра на выкладывание тайлов средневекового французского ландшафта",
-                            MaxPlayers = 5,
-                            MinAge = 8,
-                            MinPlayers = 2,
-                            Name = "Каркассон",
+                            AverageDuration = 45,
+                            Complexity = 3,
+                            Description = "Популярная в России дискуссионная игра на выживание и социальные роли.",
+                            MaxPlayers = 16,
+                            MinAge = 12,
+                            MinPlayers = 4,
+                            Name = "Бункер",
                             PublisherId = 1,
-                            YearPublished = 2000
+                            YearPublished = 2018
                         });
                 });
 
@@ -365,13 +365,13 @@ namespace GamesSharp.Migrations
                         new
                         {
                             Id = 1,
-                            GameCategoryId = 4,
+                            GameCategoryId = 1,
                             GameId = 1
                         },
                         new
                         {
                             Id = 2,
-                            GameCategoryId = 5,
+                            GameCategoryId = 4,
                             GameId = 2
                         },
                         new
@@ -389,25 +389,25 @@ namespace GamesSharp.Migrations
                         new
                         {
                             Id = 5,
-                            GameCategoryId = 1,
+                            GameCategoryId = 5,
                             GameId = 5
                         },
                         new
                         {
                             Id = 6,
-                            GameCategoryId = 5,
+                            GameCategoryId = 4,
                             GameId = 6
                         },
                         new
                         {
                             Id = 7,
-                            GameCategoryId = 4,
+                            GameCategoryId = 5,
                             GameId = 7
                         },
                         new
                         {
                             Id = 8,
-                            GameCategoryId = 1,
+                            GameCategoryId = 5,
                             GameId = 8
                         });
                 });
@@ -518,6 +518,96 @@ namespace GamesSharp.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Players");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            BirthDate = new DateTime(1996, 4, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            City = "Владимир",
+                            Email = "alexey.petrov@example.com",
+                            FavoriteGenre = "Стратегия",
+                            Name = "Алексей Петров",
+                            Phone = "+7(900)111-22-33",
+                            RegisteredDate = new DateTime(2026, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            BirthDate = new DateTime(1998, 8, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            City = "Суздаль",
+                            Email = "maria.sokolova@example.com",
+                            FavoriteGenre = "Семейная",
+                            Name = "Мария Соколова",
+                            Phone = "+7(900)222-33-44",
+                            RegisteredDate = new DateTime(2026, 1, 11, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 3,
+                            BirthDate = new DateTime(1994, 2, 18, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            City = "Муром",
+                            Email = "ilya.kuznetsov@example.com",
+                            FavoriteGenre = "Карточная",
+                            Name = "Илья Кузнецов",
+                            Phone = "+7(900)333-44-55",
+                            RegisteredDate = new DateTime(2026, 1, 12, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 4,
+                            BirthDate = new DateTime(2000, 11, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            City = "Ковров",
+                            Email = "ekaterina.orlova@example.com",
+                            FavoriteGenre = "Партийная",
+                            Name = "Екатерина Орлова",
+                            Phone = "+7(900)444-55-66",
+                            RegisteredDate = new DateTime(2026, 1, 13, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 5,
+                            BirthDate = new DateTime(1993, 6, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            City = "Гусь-Хрустальный",
+                            Email = "dmitry.fomin@example.com",
+                            FavoriteGenre = "Кооператив",
+                            Name = "Дмитрий Фомин",
+                            Phone = "+7(900)555-66-77",
+                            RegisteredDate = new DateTime(2026, 1, 14, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 6,
+                            BirthDate = new DateTime(1997, 9, 9, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            City = "Александров",
+                            Email = "olga.nikitina@example.com",
+                            FavoriteGenre = "Семейная",
+                            Name = "Ольга Никитина",
+                            Phone = "+7(900)666-77-88",
+                            RegisteredDate = new DateTime(2026, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 7,
+                            BirthDate = new DateTime(1991, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            City = "Боголюбово",
+                            Email = "sergey.vlasov@example.com",
+                            FavoriteGenre = "Стратегия",
+                            Name = "Сергей Власов",
+                            Phone = "+7(900)777-88-99",
+                            RegisteredDate = new DateTime(2026, 1, 16, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 8,
+                            BirthDate = new DateTime(2001, 3, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            City = "Мелехово",
+                            Email = "anna.zaitseva@example.com",
+                            FavoriteGenre = "Карточная",
+                            Name = "Анна Зайцева",
+                            Phone = "+7(900)888-99-00",
+                            RegisteredDate = new DateTime(2026, 1, 17, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        });
                 });
 
             modelBuilder.Entity("GamesSharp.Models.Publisher", b =>
@@ -696,35 +786,46 @@ namespace GamesSharp.Migrations
                         new
                         {
                             Id = 1,
-                            Address = "ул. Арбат, д. 10",
-                            Capacity = 30,
-                            Latitude = 55.749600000000001,
-                            Longitude = 37.592700000000001,
-                            Name = "Игротека на Арбате",
-                            Phone = "+7(495)123-45-67",
-                            RentalCostPerHour = 500m
+                            Address = "г. Владимир, ул. Большая Московская, д. 11",
+                            Capacity = 40,
+                            Latitude = 56.129100000000001,
+                            Longitude = 40.406599999999997,
+                            Name = "Клуб настольных игр Владимир",
+                            Phone = "+7(492)212-34-56",
+                            RentalCostPerHour = 600m
                         },
                         new
                         {
                             Id = 2,
-                            Address = "Ленинский пр-т, д. 5",
-                            Capacity = 20,
-                            Latitude = 55.710900000000002,
-                            Longitude = 37.586500000000001,
-                            Name = "Антикафе Таймкод",
-                            Phone = "+7(495)234-56-78",
-                            RentalCostPerHour = 300m
+                            Address = "г. Суздаль, ул. Ленина, д. 72",
+                            Capacity = 24,
+                            Latitude = 56.419499999999999,
+                            Longitude = 40.452500000000001,
+                            Name = "Игротека Суздаль",
+                            Phone = "+7(492)312-45-67",
+                            RentalCostPerHour = 450m
                         },
                         new
                         {
                             Id = 3,
-                            Address = "пр-т Мира, д. 33",
-                            Capacity = 50,
-                            Latitude = 55.781100000000002,
-                            Longitude = 37.634700000000002,
-                            Name = "Клуб настольных игр Мосигра",
-                            Phone = "+7(495)345-67-89",
-                            RentalCostPerHour = 800m
+                            Address = "г. Муром, ул. Московская, д. 5",
+                            Capacity = 30,
+                            Latitude = 55.572800000000001,
+                            Longitude = 42.052300000000002,
+                            Name = "Антикафе Муром",
+                            Phone = "+7(492)342-56-78",
+                            RentalCostPerHour = 400m
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Address = "г. Ковров, пр-т Ленина, д. 36",
+                            Capacity = 28,
+                            Latitude = 56.357199999999999,
+                            Longitude = 41.319200000000002,
+                            Name = "Игровое пространство Ковров",
+                            Phone = "+7(492)322-67-89",
+                            RentalCostPerHour = 420m
                         });
                 });
 
@@ -829,6 +930,27 @@ namespace GamesSharp.Migrations
                             EquipmentId = 4,
                             Quantity = 35,
                             VenueId = 3
+                        },
+                        new
+                        {
+                            Id = 12,
+                            EquipmentId = 1,
+                            Quantity = 30,
+                            VenueId = 4
+                        },
+                        new
+                        {
+                            Id = 13,
+                            EquipmentId = 2,
+                            Quantity = 3,
+                            VenueId = 4
+                        },
+                        new
+                        {
+                            Id = 14,
+                            EquipmentId = 4,
+                            Quantity = 16,
+                            VenueId = 4
                         });
                 });
 

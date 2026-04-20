@@ -178,9 +178,22 @@ namespace GamesSharp.Data
 
             // Seed Venues
             modelBuilder.Entity<Venue>().HasData(
-                new Venue { Id = 1, Name = "Игротека на Арбате", Address = "ул. Арбат, д. 10", Capacity = 30, Phone = "+7(495)123-45-67", RentalCostPerHour = 500, Latitude = 55.7496, Longitude = 37.5927 },
-                new Venue { Id = 2, Name = "Антикафе Таймкод", Address = "Ленинский пр-т, д. 5", Capacity = 20, Phone = "+7(495)234-56-78", RentalCostPerHour = 300, Latitude = 55.7109, Longitude = 37.5865 },
-                new Venue { Id = 3, Name = "Клуб настольных игр Мосигра", Address = "пр-т Мира, д. 33", Capacity = 50, Phone = "+7(495)345-67-89", RentalCostPerHour = 800, Latitude = 55.7811, Longitude = 37.6347 }
+                new Venue { Id = 1, Name = "Клуб настольных игр Владимир", Address = "г. Владимир, ул. Большая Московская, д. 11", Capacity = 40, Phone = "+7(492)212-34-56", RentalCostPerHour = 600, Latitude = 56.1291, Longitude = 40.4066 },
+                new Venue { Id = 2, Name = "Игротека Суздаль", Address = "г. Суздаль, ул. Ленина, д. 72", Capacity = 24, Phone = "+7(492)312-45-67", RentalCostPerHour = 450, Latitude = 56.4195, Longitude = 40.4525 },
+                new Venue { Id = 3, Name = "Антикафе Муром", Address = "г. Муром, ул. Московская, д. 5", Capacity = 30, Phone = "+7(492)342-56-78", RentalCostPerHour = 400, Latitude = 55.5728, Longitude = 42.0523 },
+                new Venue { Id = 4, Name = "Игровое пространство Ковров", Address = "г. Ковров, пр-т Ленина, д. 36", Capacity = 28, Phone = "+7(492)322-67-89", RentalCostPerHour = 420, Latitude = 56.3572, Longitude = 41.3192 }
+            );
+
+            // Seed Players (Владимир и Владимирская область)
+            modelBuilder.Entity<Player>().HasData(
+                new Player { Id = 1, Name = "Алексей Петров", Email = "alexey.petrov@example.com", Phone = "+7(900)111-22-33", RegisteredDate = new DateTime(2026, 1, 10), BirthDate = new DateTime(1996, 4, 12), City = "Владимир", FavoriteGenre = "Стратегия" },
+                new Player { Id = 2, Name = "Мария Соколова", Email = "maria.sokolova@example.com", Phone = "+7(900)222-33-44", RegisteredDate = new DateTime(2026, 1, 11), BirthDate = new DateTime(1998, 8, 5), City = "Суздаль", FavoriteGenre = "Семейная" },
+                new Player { Id = 3, Name = "Илья Кузнецов", Email = "ilya.kuznetsov@example.com", Phone = "+7(900)333-44-55", RegisteredDate = new DateTime(2026, 1, 12), BirthDate = new DateTime(1994, 2, 18), City = "Муром", FavoriteGenre = "Карточная" },
+                new Player { Id = 4, Name = "Екатерина Орлова", Email = "ekaterina.orlova@example.com", Phone = "+7(900)444-55-66", RegisteredDate = new DateTime(2026, 1, 13), BirthDate = new DateTime(2000, 11, 21), City = "Ковров", FavoriteGenre = "Партийная" },
+                new Player { Id = 5, Name = "Дмитрий Фомин", Email = "dmitry.fomin@example.com", Phone = "+7(900)555-66-77", RegisteredDate = new DateTime(2026, 1, 14), BirthDate = new DateTime(1993, 6, 30), City = "Гусь-Хрустальный", FavoriteGenre = "Кооператив" },
+                new Player { Id = 6, Name = "Ольга Никитина", Email = "olga.nikitina@example.com", Phone = "+7(900)666-77-88", RegisteredDate = new DateTime(2026, 1, 15), BirthDate = new DateTime(1997, 9, 9), City = "Александров", FavoriteGenre = "Семейная" },
+                new Player { Id = 7, Name = "Сергей Власов", Email = "sergey.vlasov@example.com", Phone = "+7(900)777-88-99", RegisteredDate = new DateTime(2026, 1, 16), BirthDate = new DateTime(1991, 12, 1), City = "Боголюбово", FavoriteGenre = "Стратегия" },
+                new Player { Id = 8, Name = "Анна Зайцева", Email = "anna.zaitseva@example.com", Phone = "+7(900)888-99-00", RegisteredDate = new DateTime(2026, 1, 17), BirthDate = new DateTime(2001, 3, 14), City = "Мелехово", FavoriteGenre = "Карточная" }
             );
 
             // Seed Equipment
@@ -196,118 +209,118 @@ namespace GamesSharp.Data
                 new Game 
                 { 
                     Id = 1, 
-                    Name = "Манчкин", 
-                    Description = "Пародийная карточная игра на тему фэнтези-подземелий. Убивай монстров, предавай друзей, хватай сокровища!", 
-                    MinPlayers = 3, 
+                    Name = "Монополия", 
+                    Description = "Классическая экономическая настольная игра про покупку улиц, аренду и развитие собственности.", 
+                    MinPlayers = 2, 
                     MaxPlayers = 6, 
-                    AverageDuration = 60, 
+                    AverageDuration = 90, 
                     PublisherId = 1,
                     Complexity = 3,
-                    MinAge = 10,
-                    YearPublished = 2001
+                    MinAge = 8,
+                    YearPublished = 1935
                 },
                 new Game 
                 { 
                     Id = 2, 
-                    Name = "Имаджинариум", 
-                    Description = "Российская игра на ассоциации с красивыми иллюстрациями. Придумывай ассоциации к картинкам!", 
-                    MinPlayers = 4, 
-                    MaxPlayers = 7, 
-                    AverageDuration = 45, 
+                    Name = "Дурак", 
+                    Description = "Одна из самых популярных карточных игр в России. Цель - избавиться от карт раньше соперников.", 
+                    MinPlayers = 2, 
+                    MaxPlayers = 6, 
+                    AverageDuration = 30, 
                     PublisherId = 1,
-                    Complexity = 2,
-                    MinAge = 12,
-                    YearPublished = 2011
+                    Complexity = 1,
+                    MinAge = 10,
+                    YearPublished = 1810
                 },
                 new Game 
                 { 
                     Id = 3, 
-                    Name = "Взрывные котята", 
-                    Description = "Весёлая карточная игра в русскую рулетку с котятами, лазерами и козами", 
-                    MinPlayers = 2, 
-                    MaxPlayers = 5, 
-                    AverageDuration = 15, 
-                    PublisherId = 1,
-                    Complexity = 1,
-                    MinAge = 7,
-                    YearPublished = 2015
-                },
-                new Game 
-                { 
-                    Id = 4, 
-                    Name = "Кодовые имена", 
-                    Description = "Командная игра на ассоциации и дедукцию. Угадывай слова по намёкам капитана!", 
-                    MinPlayers = 4, 
-                    MaxPlayers = 8, 
-                    AverageDuration = 15, 
-                    PublisherId = 2,
-                    Complexity = 2,
-                    MinAge = 10,
-                    YearPublished = 2015
-                },
-                new Game 
-                { 
-                    Id = 5, 
-                    Name = "Колонизаторы", 
-                    Description = "Классическая стратегия о колонизации острова Катан. Торгуй, строй, побеждай!", 
-                    MinPlayers = 3, 
-                    MaxPlayers = 4, 
-                    AverageDuration = 75, 
-                    PublisherId = 1,
-                    Complexity = 6,
-                    MinAge = 10,
-                    YearPublished = 1995
-                },
-                new Game 
-                { 
-                    Id = 6, 
-                    Name = "Элиас", 
-                    Description = "Популярная игра в объяснение слов. Объясняй слова, не используя однокоренные!", 
-                    MinPlayers = 4, 
-                    MaxPlayers = 12, 
-                    AverageDuration = 45, 
-                    PublisherId = 2,
-                    Complexity = 1,
-                    MinAge = 7,
-                    YearPublished = 1993
-                },
-                new Game 
-                { 
-                    Id = 7, 
-                    Name = "Uno", 
-                    Description = "Знаменитая карточная игра. Избавься от всех карт первым!", 
+                    Name = "Уно", 
+                    Description = "Динамичная карточная игра с цветами и действиями, популярная в компаниях и семьях.", 
                     MinPlayers = 2, 
                     MaxPlayers = 10, 
-                    AverageDuration = 30, 
-                    PublisherId = 2,
+                    AverageDuration = 25, 
+                    PublisherId = 1,
                     Complexity = 1,
                     MinAge = 7,
                     YearPublished = 1971
                 },
                 new Game 
                 { 
-                    Id = 8, 
-                    Name = "Каркассон", 
-                    Description = "Игра на выкладывание тайлов средневекового французского ландшафта", 
-                    MinPlayers = 2, 
-                    MaxPlayers = 5, 
+                    Id = 4, 
+                    Name = "Имаджинариум", 
+                    Description = "Популярная российская игра на ассоциации с иллюстрациями.", 
+                    MinPlayers = 4, 
+                    MaxPlayers = 7, 
+                    AverageDuration = 45, 
+                    PublisherId = 2,
+                    Complexity = 2,
+                    MinAge = 12,
+                    YearPublished = 2011
+                },
+                new Game 
+                { 
+                    Id = 5, 
+                    Name = "Мафия", 
+                    Description = "Командная психологическая игра на обсуждение и дедукцию.", 
+                    MinPlayers = 6, 
+                    MaxPlayers = 15, 
                     AverageDuration = 40, 
                     PublisherId = 1,
-                    Complexity = 4,
+                    Complexity = 2,
+                    MinAge = 12,
+                    YearPublished = 1986
+                },
+                new Game 
+                { 
+                    Id = 6, 
+                    Name = "Свинтус", 
+                    Description = "Быстрая карточная игра, очень популярная в российских компаниях.", 
+                    MinPlayers = 2, 
+                    MaxPlayers = 10, 
+                    AverageDuration = 20, 
+                    PublisherId = 2,
+                    Complexity = 1,
                     MinAge = 8,
-                    YearPublished = 2000
+                    YearPublished = 2006
+                },
+                new Game 
+                { 
+                    Id = 7, 
+                    Name = "Кодовые имена", 
+                    Description = "Командная игра на ассоциации и дедукцию.", 
+                    MinPlayers = 4, 
+                    MaxPlayers = 8, 
+                    AverageDuration = 20, 
+                    PublisherId = 2,
+                    Complexity = 2,
+                    MinAge = 10,
+                    YearPublished = 2015
+                },
+                new Game 
+                { 
+                    Id = 8, 
+                    Name = "Бункер", 
+                    Description = "Популярная в России дискуссионная игра на выживание и социальные роли.", 
+                    MinPlayers = 4, 
+                    MaxPlayers = 16, 
+                    AverageDuration = 45, 
+                    PublisherId = 1,
+                    Complexity = 3,
+                    MinAge = 12,
+                    YearPublished = 2018
                 }
             );
 
             modelBuilder.Entity<GameCategoryAssignment>().HasData(
-                new GameCategoryAssignment { Id = 1, GameId = 1, GameCategoryId = 4 },
-                new GameCategoryAssignment { Id = 2, GameId = 2, GameCategoryId = 5 },
+                new GameCategoryAssignment { Id = 1, GameId = 1, GameCategoryId = 1 },
+                new GameCategoryAssignment { Id = 2, GameId = 2, GameCategoryId = 4 },
                 new GameCategoryAssignment { Id = 3, GameId = 3, GameCategoryId = 4 },
                 new GameCategoryAssignment { Id = 4, GameId = 4, GameCategoryId = 5 },
-                new GameCategoryAssignment { Id = 5, GameId = 5, GameCategoryId = 1 },
-                new GameCategoryAssignment { Id = 6, GameId = 6, GameCategoryId = 5 },
-                new GameCategoryAssignment { Id = 7, GameId = 7, GameCategoryId = 4 },
-                new GameCategoryAssignment { Id = 8, GameId = 8, GameCategoryId = 1 }
+                new GameCategoryAssignment { Id = 5, GameId = 5, GameCategoryId = 5 },
+                new GameCategoryAssignment { Id = 6, GameId = 6, GameCategoryId = 4 },
+                new GameCategoryAssignment { Id = 7, GameId = 7, GameCategoryId = 5 },
+                new GameCategoryAssignment { Id = 8, GameId = 8, GameCategoryId = 5 }
             );
 
             // Seed available equipment per venue
@@ -322,7 +335,10 @@ namespace GamesSharp.Data
                 new VenueEquipment { Id = 8, VenueId = 3, EquipmentId = 1, Quantity = 60 },
                 new VenueEquipment { Id = 9, VenueId = 3, EquipmentId = 2, Quantity = 8 },
                 new VenueEquipment { Id = 10, VenueId = 3, EquipmentId = 3, Quantity = 4 },
-                new VenueEquipment { Id = 11, VenueId = 3, EquipmentId = 4, Quantity = 35 }
+                new VenueEquipment { Id = 11, VenueId = 3, EquipmentId = 4, Quantity = 35 },
+                new VenueEquipment { Id = 12, VenueId = 4, EquipmentId = 1, Quantity = 30 },
+                new VenueEquipment { Id = 13, VenueId = 4, EquipmentId = 2, Quantity = 3 },
+                new VenueEquipment { Id = 14, VenueId = 4, EquipmentId = 4, Quantity = 16 }
             );
         }
     }
