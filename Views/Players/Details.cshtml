@@ -44,7 +44,7 @@
                     <tr>
                         <td>@(sp.GameSession?.Game?.Name ?? "-")</td>
                         <td>@(sp.GameSession != null ? sp.GameSession.ScheduledDate.ToString("dd.MM.yyyy HH:mm") : "-")</td>
-                        <td>@(sp.GameSession?.Status ?? "-")</td>
+                        <td>@(sp.GameSession?.SessionStatus?.Name ?? "-")</td>
                         <td>@(sp.Score.HasValue ? sp.Score.Value.ToString() : "-")</td>
                         <td>@(sp.IsWinner ? "Да" : "-")</td>
                     </tr>

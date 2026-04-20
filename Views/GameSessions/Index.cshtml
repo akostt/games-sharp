@@ -55,19 +55,19 @@
                             }
                         </td>
                         <td>
-                            @switch (item.Status)
+                            @switch (item.SessionStatus?.Code)
                             {
-                                case "Завершена":
-                                    <span class="badge bg-success"><i class="bi bi-check-circle-fill"></i> Завершена</span>
+                                case "completed":
+                                    <span class="badge bg-success"><i class="bi bi-check-circle-fill"></i> @(item.SessionStatus?.Name ?? "-")</span>
                                     break;
-                                case "В процессе":
-                                    <span class="badge bg-primary"><i class="bi bi-play-circle-fill"></i> В процессе</span>
+                                case "in_progress":
+                                    <span class="badge bg-primary"><i class="bi bi-play-circle-fill"></i> @(item.SessionStatus?.Name ?? "-")</span>
                                     break;
-                                case "Отменена":
-                                    <span class="badge bg-danger"><i class="bi bi-x-circle-fill"></i> Отменена</span>
+                                case "cancelled":
+                                    <span class="badge bg-danger"><i class="bi bi-x-circle-fill"></i> @(item.SessionStatus?.Name ?? "-")</span>
                                     break;
                                 default:
-                                    <span class="badge bg-secondary"><i class="bi bi-calendar-check"></i> Запланирована</span>
+                                    <span class="badge bg-secondary"><i class="bi bi-calendar-check"></i> @(item.SessionStatus?.Name ?? "-")</span>
                                     break;
                             }
                         </td>
@@ -84,6 +84,9 @@
                             <div class="btn-group" role="group">
                                 <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info" title="Подробности">
                                     <i class="bi bi-eye"></i>
+                                </a>
+                                <a asp-action="Results" asp-route-id="@item.Id" class="btn btn-sm btn-primary" title="Результаты">
+                                    <i class="bi bi-trophy"></i>
                                 </a>
                                 <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning" title="Редактировать">
                                     <i class="bi bi-pencil"></i>

@@ -1,0 +1,89 @@
+@model GamesSharp.Models.GameSessionResultsViewModel
+
+@{
+    ViewData["Title"] = "Результаты игры";
+}
+
+<div class="container mt-4">
+    <h1><i class="bi bi-trophy"></i> Результаты игровой сессии</h1>
+
+    <div class="alert alert-light border mt-3" role="alert">
+        <div><strong>Игра:</strong> @Model.GameName</div>
+        <div><strong>Дата сессии:</strong> @Model.ScheduledDate.ToString("dd.MM.yyyy")</div>
+    </div>
+
+    <form asp-action="Results" asp-route-id="@Model.GameSessionId" method="post">
+        @Html.AntiForgeryToken()
+        <input asp-for="GameSessionId" type="hidden" />
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+        }
+
+        @if (Model.Players.Any())
+        {
+            <div class="card shadow-sm">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-list-check"></i> Ввод результатов</span>
+                    <small class="text-muted">Отметьте победителя и выставьте очки</small>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped mb-0 align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Игрок</th>
+                                    <th style="width: 180px;">Очки</th>
+                                    <th style="width: 180px;">Победитель</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (var i = 0; i < Model.Players.Count; i++)
+                                {
+                                    <tr>
+                                        <td>
+                                            @Model.Players[i].PlayerName
+                                            <input asp-for="Players[i].SessionPlayerId" type="hidden" />
+                                            <input asp-for="Players[i].PlayerId" type="hidden" />
+                                            <input asp-for="Players[i].PlayerName" type="hidden" />
+                                        </td>
+                                        <td>
+                                            <input asp-for="Players[i].Score" class="form-control" type="number" min="0" max="1000000" placeholder="Например: 42" />
+                                            <span asp-validation-for="Players[i].Score" class="text-danger"></span>
+                                        </td>
+                                        <td>
+                                            <div class="form-check mt-1">
+                                                <input asp-for="Players[i].IsWinner" class="form-check-input" />
+                                                <label asp-for="Players[i].IsWinner" class="form-check-label">Победил</label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning mt-3" role="alert">
+                В этой сессии пока нет игроков. Добавьте участников в редактировании сессии.
+            </div>
+        }
+
+        <div class="d-flex flex-wrap gap-2 mt-3">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check2-circle"></i> Сохранить результаты
+            </button>
+            <a asp-action="Details" asp-route-id="@Model.GameSessionId" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Назад к сессии
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

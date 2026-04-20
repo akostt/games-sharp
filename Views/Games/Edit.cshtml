@@ -140,9 +140,9 @@
                                                onchange="toggleQuantityInput(@equipment.Id)" />
                                         <label class="form-check-label" for="equipment_@equipment.Id">
                                             <strong>@equipment.Name</strong>
-                                            @if (!string.IsNullOrWhiteSpace(equipment.Type))
+                                            @if (!string.IsNullOrWhiteSpace(equipment.EquipmentType?.Name))
                                             {
-                                                <span class="badge bg-secondary">@equipment.Type</span>
+                                                <span class="badge bg-secondary">@equipment.EquipmentType!.Name</span>
                                             }
                                         </label>
                                     </div>

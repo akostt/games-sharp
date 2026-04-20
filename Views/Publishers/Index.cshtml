@@ -20,7 +20,7 @@
                 <thead class="table-dark">
                     <tr>
                         <th>@Html.DisplayNameFor(model => model.Name)</th>
-                        <th>@Html.DisplayNameFor(model => model.Country)</th>
+                        <th>Страна</th>
                         <th>@Html.DisplayNameFor(model => model.FoundedYear)</th>
                         <th>Количество игр</th>
                         <th>Действия</th>
@@ -30,7 +30,7 @@
             @foreach (var item in Model) {
                     <tr>
                         <td><strong>@Html.DisplayFor(modelItem => item.Name)</strong></td>
-                        <td>@Html.DisplayFor(modelItem => item.Country)</td>
+                        <td>@(item.Country?.Name ?? "-")</td>
                         <td>@Html.DisplayFor(modelItem => item.FoundedYear)</td>
                         <td><span class="badge bg-info">@item.Games.Count</span></td>
                         <td>

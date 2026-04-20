@@ -85,7 +85,7 @@
                         {
                             <tr>
                                 <td><strong>@ge.Equipment?.Name</strong></td>
-                                <td>@(string.IsNullOrWhiteSpace(ge.Equipment?.Type) ? "-" : ge.Equipment.Type)</td>
+                                <td>@(ge.Equipment?.EquipmentType?.Name ?? "-")</td>
                                 <td><span class="badge bg-primary">@ge.RequiredQuantity</span></td>
                             </tr>
                         }
@@ -112,7 +112,7 @@
                     {
                         <tr>
                             <td>@session.ScheduledDate.ToString("dd.MM.yyyy HH:mm")</td>
-                            <td>@session.Status</td>
+                            <td>@(session.SessionStatus?.Name ?? "-")</td>
                             <td>@(session.Venue?.Name ?? "-")</td>
                         </tr>
                     }

@@ -74,14 +74,11 @@
                 </div>
             </div>
             <div class="form-group mb-3">
-                <label asp-for="Status" class="control-label"></label>
-                <select asp-for="Status" class="form-select">
-                    <option value="Запланирована">Запланирована</option>
-                    <option value="В процессе">В процессе</option>
-                    <option value="Завершена">Завершена</option>
-                    <option value="Отменена">Отменена</option>
+                <label asp-for="SessionStatusId" class="control-label">Статус</label>
+                <select asp-for="SessionStatusId" class="form-select" asp-items="(IEnumerable<SelectListItem>)ViewBag.SessionStatusId">
+                    <option value="">-- Выберите статус --</option>
                 </select>
-                <span asp-validation-for="Status" class="text-danger"></span>
+                <span asp-validation-for="SessionStatusId" class="text-danger"></span>
             </div>
             <div class="row">
                 <div class="col-md-6">
@@ -112,6 +109,7 @@
             </div>
             <div class="d-flex flex-wrap gap-2 mt-3 mb-4">
                 <input type="submit" value="Сохранить" class="btn btn-primary" />
+                <a asp-action="Results" asp-route-id="@Model.Id" class="btn btn-outline-primary"><i class="bi bi-trophy"></i> Результаты</a>
                 <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Назад к списку</a>
             </div>
         </form>

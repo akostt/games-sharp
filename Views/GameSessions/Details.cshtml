@@ -31,23 +31,23 @@
         <dt class="col-sm-3">@Html.DisplayNameFor(model => model.MaxParticipants)</dt>
         <dd class="col-sm-9">@(Model.MaxParticipants.HasValue ? Model.MaxParticipants.Value.ToString() : "-")</dd>
         
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Status)</dt>
+        <dt class="col-sm-3">Статус</dt>
         <dd class="col-sm-9">
-            @if (Model.Status == "Завершена")
+            @if (Model.SessionStatus?.Code == "completed")
             {
-                <span class="badge bg-success">@Model.Status</span>
+                <span class="badge bg-success">@(Model.SessionStatus?.Name ?? "-")</span>
             }
-            else if (Model.Status == "В процессе")
+            else if (Model.SessionStatus?.Code == "in_progress")
             {
-                <span class="badge bg-primary">В процессе</span>
+                <span class="badge bg-primary">@(Model.SessionStatus?.Name ?? "-")</span>
             }
-            else if (Model.Status == "Отменена")
+            else if (Model.SessionStatus?.Code == "cancelled")
             {
-                <span class="badge bg-danger">@Model.Status</span>
+                <span class="badge bg-danger">@(Model.SessionStatus?.Name ?? "-")</span>
             }
             else
             {
-                <span class="badge bg-secondary">@Model.Status</span>
+                <span class="badge bg-secondary">@(Model.SessionStatus?.Name ?? "-")</span>
             }
         </dd>
         
@@ -60,18 +60,44 @@
     <h3><i class="bi bi-people"></i> Игроки</h3>
     @if (Model.SessionPlayers.Any())
     {
+        var orderedPlayers = Model.SessionPlayers
+            .OrderByDescending(sp => sp.IsWinner)
+            .ThenByDescending(sp => sp.Score ?? int.MinValue)
+            .ThenBy(sp => sp.Player?.Name)
+            .ToList();
+
+        var place = 0;
+        var rank = 0;
+        int? previousScore = null;
+
         <table class="table table-striped">
             <thead>
                 <tr>
+                    <th>Место</th>
                     <th>Имя игрока</th>
                     <th>Очки</th>
                     <th>Победитель</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var sp in Model.SessionPlayers)
+                @foreach (var sp in orderedPlayers)
                 {
+                    if (sp.Score.HasValue)
+                    {
+                        rank++;
+                        if (previousScore != sp.Score)
+                        {
+                            place = rank;
+                            previousScore = sp.Score;
+                        }
+                    }
+                    else
+                    {
+                        place = 0;
+                    }
+
                     <tr>
+                        <td>@(place > 0 ? place : "-")</td>
                         <td>@(sp.Player?.Name ?? "-")</td>
                         <td>@(sp.Score.HasValue ? sp.Score.Value.ToString() : "-")</td>
                         <td>@(sp.IsWinner ? "✓" : "")</td>
@@ -87,6 +113,9 @@
 </div>
 
 <div class="mt-4">
+    <a asp-action="Results" asp-route-id="@Model.Id" class="btn btn-primary">
+        <i class="bi bi-trophy"></i> Внести результаты
+    </a>
     <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
         <i class="bi bi-pencil"></i> Редактировать
     </a>

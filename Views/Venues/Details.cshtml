@@ -65,7 +65,7 @@
                             {
                                 <tr>
                                     <td>@item.Equipment.Name</td>
-                                    <td>@(string.IsNullOrWhiteSpace(item.Equipment.Type) ? "-" : item.Equipment.Type)</td>
+                                    <td>@(item.Equipment.EquipmentType?.Name ?? "-")</td>
                                     <td><span class="badge bg-primary">@item.Quantity</span></td>
                                 </tr>
                             }
@@ -123,7 +123,7 @@
                         <tr>
                             <td>@(session.Game?.Name ?? "-")</td>
                             <td>@session.ScheduledDate.ToString("dd.MM.yyyy HH:mm")</td>
-                            <td>@session.Status</td>
+                            <td>@(session.SessionStatus?.Name ?? "-")</td>
                         </tr>
                     }
                 </tbody>
