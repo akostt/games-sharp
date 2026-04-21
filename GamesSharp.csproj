@@ -23,6 +23,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Exclude legacy root code after move to src/** to avoid duplicate type compilation -->
+    <Compile Remove="Controllers/**/*.cs" />
+    <Compile Remove="Data/**/*.cs" />
+    <Compile Remove="Extensions/**/*.cs" />
+    <Compile Remove="Helpers/**/*.cs" />
+    <Compile Remove="Models/**/*.cs" />
+    <Compile Remove="Services/**/*.cs" />
+    <Compile Remove="Migrations/**/*.cs" />
+
     <Compile Remove="tests/**/*.cs" />
     <None Remove="tests/**" />
     <Content Remove="tests/**" />
