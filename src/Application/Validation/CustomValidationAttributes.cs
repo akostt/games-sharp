@@ -5,15 +5,8 @@ namespace GamesSharp.Validation
     /// <summary>
     /// Атрибут для валидации, что максимальное значение больше или равно минимальному
     /// </summary>
-    public class GreaterThanOrEqualAttribute : ValidationAttribute
+    public class GreaterThanOrEqualAttribute(string comparisonProperty) : ValidationAttribute
     {
-        private readonly string _comparisonProperty;
-
-        public GreaterThanOrEqualAttribute(string comparisonProperty)
-        {
-            _comparisonProperty = comparisonProperty;
-        }
-
         protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
             if (value == null)
@@ -25,10 +18,10 @@ namespace GamesSharp.Validation
                     ErrorMessage ?? $"{validationContext.DisplayName} должно быть сравнимым значением");
             }
 
-            var property = validationContext.ObjectType.GetProperty(_comparisonProperty);
+            var property = validationContext.ObjectType.GetProperty(comparisonProperty);
 
             if (property == null)
-                throw new ArgumentException($"Свойство '{_comparisonProperty}' не найдено");
+                throw new ArgumentException($"Свойство '{comparisonProperty}' не найдено");
 
             var comparisonValue = property.GetValue(validationContext.ObjectInstance);
 
@@ -38,13 +31,13 @@ namespace GamesSharp.Validation
             if (comparisonValue is not IComparable comparisonComparable)
             {
                 return new ValidationResult(
-                    ErrorMessage ?? $"Свойство '{_comparisonProperty}' должно быть сравнимым значением");
+                    ErrorMessage ?? $"Свойство '{comparisonProperty}' должно быть сравнимым значением");
             }
 
             if (currentValue.CompareTo(comparisonComparable) < 0)
             {
                 return new ValidationResult(
-                    ErrorMessage ?? $"{validationContext.DisplayName} должно быть больше или равно {_comparisonProperty}");
+                    ErrorMessage ?? $"{validationContext.DisplayName} должно быть больше или равно {comparisonProperty}");
             }
 
             return ValidationResult.Success;

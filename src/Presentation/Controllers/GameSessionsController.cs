@@ -8,25 +8,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GamesSharp.Controllers
 {
-    public class GameSessionsController : BaseController
+    public class GameSessionsController(
+        ApplicationDbContext context,
+        ILogger<GameSessionsController> logger,
+        IGameSessionService gameSessionService)
+        : BaseController(context, logger)
     {
-        private readonly IGameSessionService _gameSessionService;
-
-        public GameSessionsController(
-            ApplicationDbContext context,
-            ILogger<GameSessionsController> logger,
-            IGameSessionService gameSessionService)
-            : base(context, logger)
-        {
-            _gameSessionService = gameSessionService;
-        }
-
         // GET: GameSessions
         public async Task<IActionResult> Index()
         {
             try
             {
-                var gameSessions = await _gameSessionService.GetSessionsForIndexAsync();
+                var gameSessions = await gameSessionService.GetSessionsForIndexAsync();
                 return View(gameSessions);
             }
             catch (Exception ex)
@@ -46,7 +39,7 @@ namespace GamesSharp.Controllers
             try
             {
                 var sessionId = id.GetValueOrDefault();
-                var gameSession = await _gameSessionService.GetSessionDetailsAsync(sessionId);
+                var gameSession = await gameSessionService.GetSessionDetailsAsync(sessionId);
                 if (gameSession == null)
                 {
                     return NotFoundWithLogging("Игровая сессия", id);
@@ -85,7 +78,7 @@ namespace GamesSharp.Controllers
             {
                 try
                 {
-                    await _gameSessionService.CreateSessionAsync(gameSession, selectedPlayers);
+                    await gameSessionService.CreateSessionAsync(gameSession, selectedPlayers);
                     SetSuccessMessage(Constants.SuccessMessages.RecordCreated);
                     return RedirectToAction(nameof(Index));
                 }
@@ -110,7 +103,7 @@ namespace GamesSharp.Controllers
             try
             {
                 var sessionId = id.GetValueOrDefault();
-                var gameSession = await _gameSessionService.GetSessionForEditAsync(sessionId);
+                var gameSession = await gameSessionService.GetSessionForEditAsync(sessionId);
                 if (gameSession == null)
                 {
                     return NotFoundWithLogging("Игровая сессия", id);
@@ -146,13 +139,13 @@ namespace GamesSharp.Controllers
             {
                 try
                 {
-                    await _gameSessionService.UpdateSessionAsync(gameSession, selectedPlayers);
+                    await gameSessionService.UpdateSessionAsync(gameSession, selectedPlayers);
                     SetSuccessMessage(Constants.SuccessMessages.RecordUpdated);
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!await _gameSessionService.ExistsAsync(gameSession.Id))
+                    if (!await gameSessionService.ExistsAsync(gameSession.Id))
                     {
                         return NotFoundWithLogging("Игровая сессия", gameSession.Id);
                     }
@@ -180,7 +173,7 @@ namespace GamesSharp.Controllers
             try
             {
                 var sessionId = id.GetValueOrDefault();
-                var model = await _gameSessionService.GetResultsModelAsync(sessionId);
+                var model = await gameSessionService.GetResultsModelAsync(sessionId);
                 if (model == null)
                 {
                     return NotFoundWithLogging("Игровая сессия", id);
@@ -212,7 +205,7 @@ namespace GamesSharp.Controllers
 
             if (!ModelState.IsValid)
             {
-                var summary = await _gameSessionService.GetSessionSummaryAsync(id);
+                var summary = await gameSessionService.GetSessionSummaryAsync(id);
                 if (summary != null)
                 {
                     model.GameName = summary.GameName;
@@ -224,7 +217,7 @@ namespace GamesSharp.Controllers
 
             try
             {
-                var saved = await _gameSessionService.SaveResultsAsync(id, submittedPlayers);
+                var saved = await gameSessionService.SaveResultsAsync(id, submittedPlayers);
                 if (!saved)
                 {
                     return NotFoundWithLogging("Игровая сессия", id);
@@ -250,7 +243,7 @@ namespace GamesSharp.Controllers
             try
             {
                 var sessionId = id.GetValueOrDefault();
-                var gameSession = await _gameSessionService.GetSessionForDeleteAsync(sessionId);
+                var gameSession = await gameSessionService.GetSessionForDeleteAsync(sessionId);
                 if (gameSession == null)
                 {
                     return NotFoundWithLogging("Игровая сессия", id);
@@ -271,7 +264,7 @@ namespace GamesSharp.Controllers
         {
             try
             {
-                var deleted = await _gameSessionService.DeleteSessionAsync(id);
+                var deleted = await gameSessionService.DeleteSessionAsync(id);
                 if (!deleted)
                 {
                     return NotFoundWithLogging("Игровая сессия", id);
@@ -294,13 +287,13 @@ namespace GamesSharp.Controllers
                 return Json(Array.Empty<object>());
             }
 
-            var result = await _gameSessionService.GetEquipmentAvailabilityAsync(gameId, venueId.Value);
+            var result = await gameSessionService.GetEquipmentAvailabilityAsync(gameId, venueId.Value);
             return Json(result);
         }
 
         private async Task AddValidationErrorsToModelStateAsync(GameSession gameSession, IEnumerable<int>? selectedPlayers)
         {
-            var validationErrors = await _gameSessionService.ValidateSessionInputAsync(gameSession, selectedPlayers);
+            var validationErrors = await gameSessionService.ValidateSessionInputAsync(gameSession, selectedPlayers);
             foreach (var error in validationErrors)
             {
                 ModelState.AddModelError(error.Key, error.Message);
@@ -313,7 +306,7 @@ namespace GamesSharp.Controllers
             int? selectedStatusId = null,
             IEnumerable<int>? selectedPlayers = null)
         {
-            var selectionData = await _gameSessionService.GetSelectionDataAsync();
+            var selectionData = await gameSessionService.GetSelectionDataAsync();
 
             ViewData["GameId"] = new SelectList(selectionData.Games, "Id", "Name", selectedGameId);
             ViewData["VenueId"] = new SelectList(selectionData.Venues, "Id", "Name", selectedVenueId);

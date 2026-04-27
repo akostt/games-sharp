@@ -1,21 +1,9 @@
 ﻿document.addEventListener('DOMContentLoaded', () => {
-    initDeleteConfirmation();
     highlightActiveNavLink();
     initTooltips();
     initPhoneMask();
     focusFirstFormField();
 });
-
-function initDeleteConfirmation() {
-    const deleteButtons = document.querySelectorAll('a[href*="/Delete/"], button[formaction*="/Delete"]');
-    deleteButtons.forEach((button) => {
-        button.addEventListener('click', (event) => {
-            if (!window.confirm('Вы уверены, что хотите удалить запись?')) {
-                event.preventDefault();
-            }
-        });
-    });
-}
 
 function highlightActiveNavLink() {
     const currentPath = window.location.pathname;

@@ -8,21 +8,15 @@ using GamesSharp.Services;
 
 namespace GamesSharp.Controllers
 {
-    public class GamesController : BaseController
+    public class GamesController(
+        ApplicationDbContext context,
+        ILogger<GamesController> logger,
+        IReferenceDataService referenceDataService,
+        IExcelExportService excelExportService)
+        : BaseController(context, logger)
     {
-        private readonly IReferenceDataService _referenceDataService;
-        private readonly IExcelExportService _excelExportService;
-
-        public GamesController(
-            ApplicationDbContext context, 
-            ILogger<GamesController> logger,
-            IReferenceDataService referenceDataService,
-            IExcelExportService excelExportService)
-            : base(context, logger)
-        {
-            _referenceDataService = referenceDataService ?? throw new ArgumentNullException(nameof(referenceDataService));
-            _excelExportService = excelExportService ?? throw new ArgumentNullException(nameof(excelExportService));
-        }
+        private readonly IReferenceDataService _referenceDataService = referenceDataService ?? throw new ArgumentNullException(nameof(referenceDataService));
+        private readonly IExcelExportService _excelExportService = excelExportService ?? throw new ArgumentNullException(nameof(excelExportService));
 
         // GET: Games
         public async Task<IActionResult> Index(int pageNumber = 1)
@@ -104,10 +98,11 @@ namespace GamesSharp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
             [Bind("Id,Name,Description,MinPlayers,MaxPlayers,AverageDuration,Complexity,MinAge,YearPublished,PublisherId")] Game game, 
-            List<int>? selectedCategoryIds, 
-            List<int>? selectedEquipment, 
-            Dictionary<int, int>? equipmentQuantities)
+            [FromForm(Name = "selectedCategoryIds")] List<int>? selectedCategoryIds, 
+            [FromForm(Name = "selectedEquipment")] List<int>? selectedEquipment)
         {
+            var equipmentQuantities = ParseEquipmentQuantitiesFromForm();
+            NormalizeNumericBindingErrors();
             ValidateGameData(game);
             ValidateEquipmentQuantities(selectedEquipment, equipmentQuantities);
 
@@ -186,13 +181,14 @@ namespace GamesSharp.Controllers
         public async Task<IActionResult> Edit(
             int id, 
             [Bind("Id,Name,Description,MinPlayers,MaxPlayers,AverageDuration,Complexity,MinAge,YearPublished,PublisherId")] Game game, 
-            List<int>? selectedCategoryIds, 
-            List<int>? selectedEquipment, 
-            Dictionary<int, int>? equipmentQuantities)
+            [FromForm(Name = "selectedCategoryIds")] List<int>? selectedCategoryIds, 
+            [FromForm(Name = "selectedEquipment")] List<int>? selectedEquipment)
         {
             if (id != game.Id)
                 return NotFoundWithLogging("Игра", id);
 
+            var equipmentQuantities = ParseEquipmentQuantitiesFromForm();
+            NormalizeNumericBindingErrors();
             ValidateGameData(game);
             ValidateEquipmentQuantities(selectedEquipment, equipmentQuantities);
 
@@ -421,9 +417,7 @@ namespace GamesSharp.Controllers
                 {
                     GameId = gameId,
                     EquipmentId = equipmentId,
-                    RequiredQuantity = equipmentQuantities?.ContainsKey(equipmentId) == true 
-                        ? equipmentQuantities[equipmentId] 
-                        : 1
+                    RequiredQuantity = GetQuantityForEquipment(equipmentId, equipmentQuantities)
                 })
                 .ToList();
 
@@ -450,8 +444,14 @@ namespace GamesSharp.Controllers
             if (string.IsNullOrWhiteSpace(game.Name))
                 ModelState.AddModelError(nameof(game.Name), "Название игры обязательно");
 
-            if (game.MinPlayers <= 0 || game.MaxPlayers <= 0)
-                ModelState.AddModelError(nameof(game.MinPlayers), "Количество игроков должно быть больше нуля");
+            if (!HasFieldErrors(nameof(game.MinPlayers)) && game.MinPlayers <= 0)
+                ModelState.AddModelError(nameof(game.MinPlayers), "Минимальное количество игроков должно быть больше нуля");
+
+            if (!HasFieldErrors(nameof(game.MaxPlayers)) && game.MaxPlayers <= 0)
+                ModelState.AddModelError(nameof(game.MaxPlayers), "Максимальное количество игроков должно быть больше нуля");
+
+            if (!HasFieldErrors(nameof(game.AverageDuration)) && game.AverageDuration <= 0)
+                ModelState.AddModelError(nameof(game.AverageDuration), "Средняя длительность обязательна и должна быть больше нуля");
 
             if (game.MaxPlayers < game.MinPlayers)
                 ModelState.AddModelError(nameof(game.MaxPlayers), "Максимальное количество игроков должно быть больше минимального");
@@ -495,6 +495,87 @@ namespace GamesSharp.Controllers
                     ModelState.AddModelError(fieldKey, "Требуемое количество не должно превышать 1000.");
                 }
             }
+        }
+
+        private static int GetQuantityForEquipment(int equipmentId, Dictionary<int, int>? equipmentQuantities)
+        {
+            if (equipmentQuantities == null)
+            {
+                return 1;
+            }
+
+            return equipmentQuantities.TryGetValue(equipmentId, out var quantity)
+                ? quantity
+                : 1;
+        }
+
+        private Dictionary<int, int> ParseEquipmentQuantitiesFromForm()
+        {
+            var parsed = new Dictionary<int, int>();
+
+            if (!Request.HasFormContentType)
+            {
+                return parsed;
+            }
+
+            foreach (var (key, value) in Request.Form)
+            {
+                if (!key.StartsWith("equipmentQuantities[") || !key.EndsWith("]"))
+                {
+                    continue;
+                }
+
+                var idText = key.Substring("equipmentQuantities[".Length, key.Length - "equipmentQuantities[".Length - 1);
+                if (!int.TryParse(idText, out var equipmentId))
+                {
+                    continue;
+                }
+
+                if (int.TryParse(value.ToString(), out var quantity))
+                {
+                    parsed[equipmentId] = quantity;
+                }
+            }
+
+            return parsed;
+        }
+
+        private void NormalizeNumericBindingErrors()
+        {
+            if (!Request.HasFormContentType)
+            {
+                return;
+            }
+
+            ReplaceEmptyValueError(nameof(Game.MinPlayers), "Минимальное количество игроков обязательно");
+            ReplaceEmptyValueError(nameof(Game.MaxPlayers), "Максимальное количество игроков обязательно");
+            ReplaceEmptyValueError(nameof(Game.AverageDuration), "Средняя длительность обязательна");
+            ReplaceEmptyValueError(nameof(Game.Complexity), "Сложность должна быть числом от 1 до 10");
+            ReplaceEmptyValueError(nameof(Game.MinAge), "Минимальный возраст должен быть числом");
+            ReplaceEmptyValueError(nameof(Game.YearPublished), "Год издания должен быть числом");
+            ReplaceEmptyValueError(nameof(Game.PublisherId), "Укажите корректного издателя");
+        }
+
+        private void ReplaceEmptyValueError(string fieldName, string errorMessage)
+        {
+            if (!ModelState.TryGetValue(fieldName, out var state) || state.Errors.Count == 0)
+            {
+                return;
+            }
+
+            var rawValue = Request.Form[fieldName].ToString();
+            if (!string.IsNullOrWhiteSpace(rawValue))
+            {
+                return;
+            }
+
+            ModelState.Remove(fieldName);
+            ModelState.AddModelError(fieldName, errorMessage);
+        }
+
+        private bool HasFieldErrors(string fieldName)
+        {
+            return ModelState.TryGetValue(fieldName, out var state) && state.Errors.Count > 0;
         }
     }
 }

@@ -176,6 +176,11 @@ body {
   box-shadow: 0 7px 18px rgba(23, 42, 71, 0.12);
 }
 
+/* Do not render empty validation summary blocks before any errors appear. */
+.validation-summary-valid {
+  display: none;
+}
+
 .app-footer {
   margin-top: auto;
   background: transparent;

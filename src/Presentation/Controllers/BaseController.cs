@@ -7,16 +7,10 @@ namespace GamesSharp.Controllers
     /// <summary>
     /// Базовый контроллер с общей логикой для всех контроллеров
     /// </summary>
-    public abstract class BaseController : Controller
+    public abstract class BaseController(ApplicationDbContext context, ILogger logger) : Controller
     {
-        protected readonly ApplicationDbContext Context;
-        protected readonly ILogger Logger;
-
-        protected BaseController(ApplicationDbContext context, ILogger logger)
-        {
-            Context = context ?? throw new ArgumentNullException(nameof(context));
-            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
+        protected readonly ApplicationDbContext Context = context ?? throw new ArgumentNullException(nameof(context));
+        protected readonly ILogger Logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         /// <summary>
         /// Проверка валидности ID

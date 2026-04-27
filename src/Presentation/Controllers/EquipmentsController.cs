@@ -7,13 +7,9 @@ using GamesSharp.Helpers;
 
 namespace GamesSharp.Controllers
 {
-    public class EquipmentsController : BaseController
+    public class EquipmentsController(ApplicationDbContext context, ILogger<EquipmentsController> logger)
+        : BaseController(context, logger)
     {
-        public EquipmentsController(ApplicationDbContext context, ILogger<EquipmentsController> logger)
-            : base(context, logger)
-        {
-        }
-
         // GET: Equipments
         public async Task<IActionResult> Index()
         {

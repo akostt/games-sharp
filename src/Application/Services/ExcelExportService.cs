@@ -19,19 +19,14 @@ namespace GamesSharp.Services
         Task<ExcelExportResult> ExportPlayersAsync(IReadOnlyCollection<Player> players, CancellationToken cancellationToken = default);
     }
 
-    public class ExcelExportService : IExcelExportService
+    public class ExcelExportService(IWebHostEnvironment environment, ILogger<ExcelExportService> logger)
+        : IExcelExportService
     {
         private static readonly SemaphoreSlim ExportLock = new(1, 1);
         private static readonly TimeSpan ExportFileTtl = TimeSpan.FromHours(12);
 
-        private readonly IWebHostEnvironment _environment;
-        private readonly ILogger<ExcelExportService> _logger;
-
-        public ExcelExportService(IWebHostEnvironment environment, ILogger<ExcelExportService> logger)
-        {
-            _environment = environment ?? throw new ArgumentNullException(nameof(environment));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
+        private readonly IWebHostEnvironment _environment = environment ?? throw new ArgumentNullException(nameof(environment));
+        private readonly ILogger<ExcelExportService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         public Task<ExcelExportResult> ExportGamesAsync(IReadOnlyCollection<Game> games, CancellationToken cancellationToken = default)
         {

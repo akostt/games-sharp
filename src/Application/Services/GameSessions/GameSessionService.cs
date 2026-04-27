@@ -6,18 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GamesSharp.Services.GameSessions
 {
-    public class GameSessionService : IGameSessionService
+    public class GameSessionService(ApplicationDbContext context) : IGameSessionService
     {
-        private readonly ApplicationDbContext _context;
-
-        public GameSessionService(ApplicationDbContext context)
-        {
-            _context = context;
-        }
-
         public Task<List<GameSession>> GetSessionsForIndexAsync()
         {
-            return _context.GameSessions
+            return context.GameSessions
                 .Include(g => g.Game)
                 .Include(g => g.Venue)
                 .Include(g => g.SessionStatus)
@@ -30,7 +23,7 @@ namespace GamesSharp.Services.GameSessions
 
         public Task<GameSession?> GetSessionDetailsAsync(int id)
         {
-            return _context.GameSessions
+            return context.GameSessions
                 .Include(g => g.Game)
                 .Include(g => g.Venue)
                 .Include(g => g.SessionStatus)
@@ -42,7 +35,7 @@ namespace GamesSharp.Services.GameSessions
 
         public Task<GameSession?> GetSessionForEditAsync(int id)
         {
-            return _context.GameSessions
+            return context.GameSessions
                 .Include(g => g.SessionPlayers)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(g => g.Id == id);
@@ -50,7 +43,7 @@ namespace GamesSharp.Services.GameSessions
 
         public Task<GameSession?> GetSessionForDeleteAsync(int id)
         {
-            return _context.GameSessions
+            return context.GameSessions
                 .Include(g => g.Game)
                 .Include(g => g.SessionStatus)
                 .Include(g => g.SessionPlayers)
@@ -61,7 +54,7 @@ namespace GamesSharp.Services.GameSessions
 
         public async Task<GameSessionResultsViewModel?> GetResultsModelAsync(int id)
         {
-            var gameSession = await _context.GameSessions
+            var gameSession = await context.GameSessions
                 .Include(gs => gs.Game)
                 .Include(gs => gs.SessionPlayers)
                     .ThenInclude(sp => sp.Player)
@@ -94,7 +87,7 @@ namespace GamesSharp.Services.GameSessions
 
         public async Task<SessionSummary?> GetSessionSummaryAsync(int id)
         {
-            var session = await _context.GameSessions
+            var session = await context.GameSessions
                 .Include(gs => gs.Game)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(gs => gs.Id == id);
@@ -113,22 +106,22 @@ namespace GamesSharp.Services.GameSessions
 
         public async Task<SessionSelectionData> GetSelectionDataAsync()
         {
-            var games = await _context.Games
+            var games = await context.Games
                 .AsNoTracking()
                 .OrderBy(g => g.Name)
                 .ToListAsync();
 
-            var venues = await _context.Venues
+            var venues = await context.Venues
                 .AsNoTracking()
                 .OrderBy(v => v.Name)
                 .ToListAsync();
 
-            var players = await _context.Players
+            var players = await context.Players
                 .AsNoTracking()
                 .OrderBy(p => p.Name)
                 .ToListAsync();
 
-            var statuses = await _context.SessionStatuses
+            var statuses = await context.SessionStatuses
                 .AsNoTracking()
                 .OrderBy(s => s.Id)
                 .ToListAsync();
@@ -182,25 +175,25 @@ namespace GamesSharp.Services.GameSessions
             NormalizeSessionTimes(gameSession);
             gameSession.SessionStatusId = Constants.SessionStatus.ScheduledId;
 
-            _context.GameSessions.Add(gameSession);
-            await _context.SaveChangesAsync();
+            context.GameSessions.Add(gameSession);
+            await context.SaveChangesAsync();
 
             await ReplaceSessionPlayersAsync(gameSession.Id, selectedPlayers);
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
         public async Task UpdateSessionAsync(GameSession gameSession, IEnumerable<int>? selectedPlayers)
         {
             NormalizeSessionTimes(gameSession);
-            _context.GameSessions.Update(gameSession);
+            context.GameSessions.Update(gameSession);
 
             await ReplaceSessionPlayersAsync(gameSession.Id, selectedPlayers);
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
         public async Task<bool> SaveResultsAsync(int id, IReadOnlyCollection<SessionPlayerResultInput> submittedPlayers)
         {
-            var gameSession = await _context.GameSessions
+            var gameSession = await context.GameSessions
                 .Include(gs => gs.SessionPlayers)
                 .FirstOrDefaultAsync(gs => gs.Id == id);
 
@@ -226,31 +219,31 @@ namespace GamesSharp.Services.GameSessions
                 gameSession.SessionStatusId = Constants.SessionStatus.CompletedId;
             }
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> DeleteSessionAsync(int id)
         {
-            var gameSession = await _context.GameSessions.FindAsync(id);
+            var gameSession = await context.GameSessions.FindAsync(id);
             if (gameSession == null)
             {
                 return false;
             }
 
-            _context.GameSessions.Remove(gameSession);
-            await _context.SaveChangesAsync();
+            context.GameSessions.Remove(gameSession);
+            await context.SaveChangesAsync();
             return true;
         }
 
         public Task<bool> ExistsAsync(int id)
         {
-            return _context.GameSessions.AnyAsync(e => e.Id == id);
+            return context.GameSessions.AnyAsync(e => e.Id == id);
         }
 
         public async Task<List<EquipmentAvailabilityItem>> GetEquipmentAvailabilityAsync(int gameId, int venueId)
         {
-            var required = await _context.GameEquipments
+            var required = await context.GameEquipments
                 .AsNoTracking()
                 .Where(ge => ge.GameId == gameId)
                 .Select(ge => new
@@ -261,7 +254,7 @@ namespace GamesSharp.Services.GameSessions
                 })
                 .ToListAsync();
 
-            var venueStock = await _context.VenueEquipments
+            var venueStock = await context.VenueEquipments
                 .AsNoTracking()
                 .Where(ve => ve.VenueId == venueId)
                 .ToDictionaryAsync(ve => ve.EquipmentId, ve => ve.Quantity);
@@ -296,7 +289,7 @@ namespace GamesSharp.Services.GameSessions
 
         private async Task ReplaceSessionPlayersAsync(int gameSessionId, IEnumerable<int>? selectedPlayers)
         {
-            var existingPlayers = await _context.SessionPlayers
+            var existingPlayers = await context.SessionPlayers
                 .Where(sp => sp.GameSessionId == gameSessionId)
                 .ToListAsync();
 
@@ -305,7 +298,7 @@ namespace GamesSharp.Services.GameSessions
 
             if (toRemove.Count > 0)
             {
-                _context.SessionPlayers.RemoveRange(toRemove);
+                context.SessionPlayers.RemoveRange(toRemove);
             }
 
             var existingPlayerIds = existingPlayers.Select(sp => sp.PlayerId).ToHashSet();
@@ -316,7 +309,7 @@ namespace GamesSharp.Services.GameSessions
                     continue;
                 }
 
-                _context.SessionPlayers.Add(new SessionPlayer
+                context.SessionPlayers.Add(new SessionPlayer
                 {
                     GameSessionId = gameSessionId,
                     PlayerId = playerId
@@ -326,7 +319,7 @@ namespace GamesSharp.Services.GameSessions
 
         private async Task<List<SessionValidationError>> ValidateVenueEquipmentAvailabilityAsync(int gameId, int venueId)
         {
-            var required = await _context.GameEquipments
+            var required = await context.GameEquipments
                 .AsNoTracking()
                 .Where(ge => ge.GameId == gameId)
                 .Select(ge => new
@@ -342,7 +335,7 @@ namespace GamesSharp.Services.GameSessions
                 return new List<SessionValidationError>();
             }
 
-            var stock = await _context.VenueEquipments
+            var stock = await context.VenueEquipments
                 .AsNoTracking()
                 .Where(ve => ve.VenueId == venueId)
                 .ToDictionaryAsync(ve => ve.EquipmentId, ve => ve.Quantity);

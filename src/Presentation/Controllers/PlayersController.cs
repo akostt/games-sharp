@@ -7,18 +7,13 @@ using GamesSharp.Services;
 
 namespace GamesSharp.Controllers
 {
-    public class PlayersController : BaseController
+    public class PlayersController(
+        ApplicationDbContext context,
+        ILogger<PlayersController> logger,
+        IExcelExportService excelExportService)
+        : BaseController(context, logger)
     {
-        private readonly IExcelExportService _excelExportService;
-
-        public PlayersController(
-            ApplicationDbContext context,
-            ILogger<PlayersController> logger,
-            IExcelExportService excelExportService)
-            : base(context, logger)
-        {
-            _excelExportService = excelExportService ?? throw new ArgumentNullException(nameof(excelExportService));
-        }
+        private readonly IExcelExportService _excelExportService = excelExportService ?? throw new ArgumentNullException(nameof(excelExportService));
 
         // GET: Players
         public async Task<IActionResult> Index()

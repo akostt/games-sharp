@@ -6,13 +6,9 @@ using GamesSharp.Helpers;
 
 namespace GamesSharp.Controllers
 {
-    public class GameCategoriesController : BaseController
+    public class GameCategoriesController(ApplicationDbContext context, ILogger<GameCategoriesController> logger)
+        : BaseController(context, logger)
     {
-        public GameCategoriesController(ApplicationDbContext context, ILogger<GameCategoriesController> logger)
-            : base(context, logger)
-        {
-        }
-
         // GET: GameCategories
         public async Task<IActionResult> Index()
         {

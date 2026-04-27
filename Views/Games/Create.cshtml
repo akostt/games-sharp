@@ -18,7 +18,7 @@
                     <div class="col-md-6">
                         <div class="form-group mb-3">
                             <label asp-for="Name" class="control-label"></label>
-                            <input asp-for="Name" class="form-control" />
+                            <input asp-for="Name" class="form-control" required />
                             <span asp-validation-for="Name" class="text-danger"></span>
                         </div>
                     </div>
@@ -85,14 +85,14 @@
                     <div class="col-md-4">
                         <div class="form-group mb-3">
                             <label asp-for="MinPlayers" class="control-label"></label>
-                            <input asp-for="MinPlayers" class="form-control" type="number" min="1" />
+                            <input asp-for="MinPlayers" class="form-control" type="number" min="1" required />
                             <span asp-validation-for="MinPlayers" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group mb-3">
                             <label asp-for="MaxPlayers" class="control-label"></label>
-                            <input asp-for="MaxPlayers" class="form-control" type="number" min="1" />
+                            <input asp-for="MaxPlayers" class="form-control" type="number" min="1" required />
                             <span asp-validation-for="MaxPlayers" class="text-danger"></span>
                         </div>
                     </div>
@@ -109,7 +109,7 @@
                     <div class="col-md-6">
                         <div class="form-group mb-3">
                             <label asp-for="AverageDuration" class="control-label"></label>
-                            <input asp-for="AverageDuration" class="form-control" type="number" min="1" />
+                            <input asp-for="AverageDuration" class="form-control" type="number" min="1" required />
                             <span asp-validation-for="AverageDuration" class="text-danger"></span>
                             <small class="form-text text-muted">Длительность в минутах</small>
                         </div>

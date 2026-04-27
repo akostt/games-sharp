@@ -5,20 +5,12 @@ namespace GamesSharp.Models
     /// <summary>
     /// Модель для пагинации данных
     /// </summary>
-    public class PaginatedList<T>
+    public class PaginatedList<T>(List<T> items, int pageNumber, int pageSize, int totalCount)
     {
-        public List<T> Items { get; set; }
-        public int PageNumber { get; set; }
-        public int PageSize { get; set; }
-        public int TotalCount { get; set; }
-
-        public PaginatedList(List<T> items, int pageNumber, int pageSize, int totalCount)
-        {
-            Items = items;
-            PageNumber = pageNumber;
-            PageSize = pageSize;
-            TotalCount = totalCount;
-        }
+        public List<T> Items { get; set; } = items;
+        public int PageNumber { get; set; } = pageNumber;
+        public int PageSize { get; set; } = pageSize;
+        public int TotalCount { get; set; } = totalCount;
 
         public int TotalPages => (int)Math.Ceiling(TotalCount / (double)PageSize);
         public bool HasPreviousPage => PageNumber > 1;

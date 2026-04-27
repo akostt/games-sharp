@@ -16,42 +16,32 @@ namespace GamesSharp.Services
         Task InvalidateCacheAsync();
     }
 
-    public class ReferenceDataService : IReferenceDataService
+    public class ReferenceDataService(
+        ApplicationDbContext context,
+        IMemoryCache cache,
+        ILogger<ReferenceDataService> logger)
+        : IReferenceDataService
     {
-        private readonly ApplicationDbContext _context;
-        private readonly IMemoryCache _cache;
-        private readonly ILogger<ReferenceDataService> _logger;
-
         private const string CATEGORIES_CACHE_KEY = "game_categories";
         private const string PUBLISHERS_CACHE_KEY = "publishers";
         private const string EQUIPMENTS_CACHE_KEY = "equipments";
         private static readonly TimeSpan CACHE_DURATION = TimeSpan.FromHours(1);
-
-        public ReferenceDataService(
-            ApplicationDbContext context,
-            IMemoryCache cache,
-            ILogger<ReferenceDataService> logger)
-        {
-            _context = context;
-            _cache = cache;
-            _logger = logger;
-        }
 
         /// <summary>
         /// Получает список категорий игр с кешированием
         /// </summary>
         public async Task<List<GameCategory>> GetGameCategoriesAsync()
         {
-            if (_cache.TryGetValue(CATEGORIES_CACHE_KEY, out List<GameCategory>? cachedCategories))
+            if (cache.TryGetValue(CATEGORIES_CACHE_KEY, out List<GameCategory>? cachedCategories))
             {
-                _logger.LogDebug("Категории получены из кеша");
+                logger.LogDebug("Категории получены из кеша");
                 return cachedCategories ?? new List<GameCategory>();
             }
 
-            _logger.LogDebug("Загрузка категорий из базы данных");
-            var categories = await _context.GameCategories.AsNoTracking().ToListAsync();
+            logger.LogDebug("Загрузка категорий из базы данных");
+            var categories = await context.GameCategories.AsNoTracking().ToListAsync();
             
-            _cache.Set(CATEGORIES_CACHE_KEY, categories, new MemoryCacheEntryOptions().SetAbsoluteExpiration(CACHE_DURATION));
+            cache.Set(CATEGORIES_CACHE_KEY, categories, new MemoryCacheEntryOptions().SetAbsoluteExpiration(CACHE_DURATION));
             return categories;
         }
 
@@ -60,19 +50,19 @@ namespace GamesSharp.Services
         /// </summary>
         public async Task<List<Publisher>> GetPublishersAsync()
         {
-            if (_cache.TryGetValue(PUBLISHERS_CACHE_KEY, out List<Publisher>? cachedPublishers))
+            if (cache.TryGetValue(PUBLISHERS_CACHE_KEY, out List<Publisher>? cachedPublishers))
             {
-                _logger.LogDebug("Издатели получены из кеша");
+                logger.LogDebug("Издатели получены из кеша");
                 return cachedPublishers ?? new List<Publisher>();
             }
 
-            _logger.LogDebug("Загрузка издателей из базы данных");
-            var publishers = await _context.Publishers
+            logger.LogDebug("Загрузка издателей из базы данных");
+            var publishers = await context.Publishers
                 .Include(p => p.Country)
                 .AsNoTracking()
                 .ToListAsync();
             
-            _cache.Set(PUBLISHERS_CACHE_KEY, publishers, new MemoryCacheEntryOptions().SetAbsoluteExpiration(CACHE_DURATION));
+            cache.Set(PUBLISHERS_CACHE_KEY, publishers, new MemoryCacheEntryOptions().SetAbsoluteExpiration(CACHE_DURATION));
             return publishers;
         }
 
@@ -81,19 +71,19 @@ namespace GamesSharp.Services
         /// </summary>
         public async Task<List<Equipment>> GetEquipmentsAsync()
         {
-            if (_cache.TryGetValue(EQUIPMENTS_CACHE_KEY, out List<Equipment>? cachedEquipments))
+            if (cache.TryGetValue(EQUIPMENTS_CACHE_KEY, out List<Equipment>? cachedEquipments))
             {
-                _logger.LogDebug("Оборудование получено из кеша");
+                logger.LogDebug("Оборудование получено из кеша");
                 return cachedEquipments ?? new List<Equipment>();
             }
 
-            _logger.LogDebug("Загрузка оборудования из базы данных");
-            var equipments = await _context.Equipments
+            logger.LogDebug("Загрузка оборудования из базы данных");
+            var equipments = await context.Equipments
                 .Include(e => e.EquipmentType)
                 .AsNoTracking()
                 .ToListAsync();
             
-            _cache.Set(EQUIPMENTS_CACHE_KEY, equipments, new MemoryCacheEntryOptions().SetAbsoluteExpiration(CACHE_DURATION));
+            cache.Set(EQUIPMENTS_CACHE_KEY, equipments, new MemoryCacheEntryOptions().SetAbsoluteExpiration(CACHE_DURATION));
             return equipments;
         }
 
@@ -102,10 +92,10 @@ namespace GamesSharp.Services
         /// </summary>
         public Task InvalidateCacheAsync()
         {
-            _logger.LogInformation("Инвалидация кеша справочных данных");
-            _cache.Remove(CATEGORIES_CACHE_KEY);
-            _cache.Remove(PUBLISHERS_CACHE_KEY);
-            _cache.Remove(EQUIPMENTS_CACHE_KEY);
+            logger.LogInformation("Инвалидация кеша справочных данных");
+            cache.Remove(CATEGORIES_CACHE_KEY);
+            cache.Remove(PUBLISHERS_CACHE_KEY);
+            cache.Remove(EQUIPMENTS_CACHE_KEY);
             return Task.CompletedTask;
         }
     }
