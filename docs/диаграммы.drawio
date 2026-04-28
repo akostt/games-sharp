@@ -469,7 +469,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="martin_precise" name="2. Диаграмма Мартина (Crow&#39;s Foot)">
-    <mxGraphModel dx="1629" dy="1221" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1684" pageHeight="1191" math="0" shadow="0">
+    <mxGraphModel dx="1629" dy="1221" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1684" pageHeight="1191" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -1446,21 +1446,21 @@
     </mxGraphModel>
   </diagram>
   <diagram id="use_case_v2" name="3. Диаграмма прецедентов">
-    <mxGraphModel dx="1880" dy="1409" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2200" pageHeight="1500" math="0" shadow="0">
+    <mxGraphModel dx="1528" dy="1145" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2200" pageHeight="1500" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="sys" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" value="" vertex="1">
-          <mxGeometry height="780" width="1550" x="260" y="40" as="geometry" />
+          <mxGeometry height="780" width="1150" x="260" y="40" as="geometry" />
         </mxCell>
         <mxCell id="a_admin" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" value="Администратор" vertex="1">
-          <mxGeometry height="100" width="50" x="70" y="120" as="geometry" />
+          <mxGeometry height="100" width="50" x="129" y="120" as="geometry" />
         </mxCell>
         <mxCell id="a_org" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" value="Организатор&#xa;сессий" vertex="1">
-          <mxGeometry height="100" width="50" x="70" y="540" as="geometry" />
+          <mxGeometry height="100" width="50" x="129" y="540" as="geometry" />
         </mxCell>
         <mxCell id="a_player" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" value="Игрок" vertex="1">
-          <mxGeometry height="100" width="50" x="1890" y="330" as="geometry" />
+          <mxGeometry height="100" width="50" x="1494" y="330" as="geometry" />
         </mxCell>
         <mxCell id="uc_games" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="Управлять играми" vertex="1">
           <mxGeometry height="40" width="110" x="300" y="65" as="geometry" />
@@ -1502,10 +1502,10 @@
           <mxGeometry height="40" width="110" x="690" y="650" as="geometry" />
         </mxCell>
         <mxCell id="uc_view_catalog" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="Просматривать каталог игр" vertex="1">
-          <mxGeometry height="40" width="110" x="1560" y="440" as="geometry" />
+          <mxGeometry height="40" width="110" x="1196" y="440" as="geometry" />
         </mxCell>
         <mxCell id="uc_view_result" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="Просматривать результаты&#xa;своих партий" vertex="1">
-          <mxGeometry height="70" width="170" x="1560" y="635" as="geometry" />
+          <mxGeometry height="70" width="170" x="1196" y="635" as="geometry" />
         </mxCell>
         <mxCell id="ua1" edge="1" parent="1" source="a_admin" style="edgeStyle=none;rounded=0;html=1;endArrow=none;" target="uc_games">
           <mxGeometry relative="1" as="geometry" />
@@ -1565,6 +1565,18 @@
         </mxCell>
         <mxCell id="ext1" edge="1" parent="1" source="uc_view_result" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;" target="uc_results" value="&lt;&lt;extend&gt;&gt;">
           <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="A2NwAdotrr5Sr3S3LtPb-1" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="include" vertex="1">
+          <mxGeometry height="30" width="60" x="990" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="A2NwAdotrr5Sr3S3LtPb-2" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="include" vertex="1">
+          <mxGeometry height="30" width="60" x="840" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="A2NwAdotrr5Sr3S3LtPb-3" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="include" vertex="1">
+          <mxGeometry height="30" width="60" x="526" y="647" as="geometry" />
+        </mxCell>
+        <mxCell id="A2NwAdotrr5Sr3S3LtPb-4" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="extend" vertex="1">
+          <mxGeometry height="30" width="60" x="969" y="645" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
